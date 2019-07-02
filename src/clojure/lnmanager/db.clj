@@ -21,7 +21,7 @@
 (def all-table-names
   ;;for use in a map function that will delete all tables
   ;;single command looks like:  (jdbc/drop-table-ddl  :lnuser {:conditional? true } )
-  [ :plate_layout_name :plate_format :plate_type :project :lnsession :lnuser :lnuser_groups] )
+  [ :layout_source_dest :plate_layout_name :plate_format :plate_type :project :lnsession :lnuser :lnuser_groups] )
 
 (map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
 
@@ -76,9 +76,27 @@
                             [:format "varchar(6)"]
                             [:rownum :int]
                             [:colnum :int]])]
-   []
+   [(jdbc/create-table-ddl :plate_layout_name
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:sys_name "varchar(30)"]
+                            [:name "varchar(250)"]
+                            [:descr "varchar(250)"]
+                            [:plate_format_id :int]
+                            [:replicates :int]
+                            [:targets :int]
+                            [:use_edge :int]
+                            [:num_controls :int]
+                            [:unknown_n :int]
+                            [:control_loc "varchar(30)"]
+                            [:source_dest "varchar(30)"]
+                            ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]])]
+   [(jdbc/create-table-ddl :layout_source_dest
+                           [[:src :int "NOT NULL"]
+                            [:dest :int "NOT NULL"]
+                            ])]
    ])
 
+;;CREATE INDEX ON plate_layout_name(plate_format_id);
 
 (map #(jdbc/db-do-commands pg-db %) all-tables)
 
@@ -104,13 +122,110 @@
    [ :plate_format [:id :format :rownum :colnum]
     [[ 96, "96", 8, 12]
      [384, "384",16, 24]
-     [1536, "1536", 32, 48]]]])
+     [1536, "1536", 32, 48]]]
 
+   [ :plate_layout_name [:sys_name :name :descr :plate_format_id :replicates :targets :use_edge :num_controls :unknown_n :control_loc :source_dest]
+    [
+      ["LYT-1" "4 controls col 12" "1S1T" 96 1 1 1 4 92 "E12-H12" "source"]
+ ["LYT-2" "4 controls cols 23 24" "1S4T" 384  1 4 1 4 368 "I23-P24" "dest"]
+     ["LYT-3" "4 controls cols 23 24" "2S2T" 384  2 2 1 4 368 "I23-P24" "dest"]
+     ["LYT-4" "4 controls cols 23 24" "2S4T" 384  2 4 1 4 368 "I23-P24" "dest"]
+ ["LYT-5" "4 controls cols 23 24" "4S1T" 384  4 1 1 4 368 "I23-P24" "dest"]
+ ["LYT-6" "4 controls cols 23 24" "4S2T" 384  4 2 1 4 368 "I23-P24" "dest"]
+ ["LYT-7" "8 controls col 12" "1S1T" 96  1 1 1 8 88 "A12-H12" "source"]
+ ["LYT-8" "8 controls cols 23 24" "1S4T" 384  1 4 1 8 352 "A23-P24" "dest"]
+ ["LYT-9" "8 controls cols 23 24" "2S2T" 384  2 2 1 8 352 "A23-P24" "dest"]
+ ["LYT-10" "8 controls cols 23 24" "2S4T" 384  2 4 1 8 352 "A23-P24" "dest"]
+ ["LYT-11" "8 controls cols 23 24" "4S1T" 384  4 1 1 8 352 "A23-P24" "dest"]
+ ["LYT-12" "8 controls cols 23 24" "4S2T" 384  4 2 1 8 352 "A23-P24" "dest"]
+ ["LYT-13" "8 controls col 24" "1S1T" 384  1 1 1 8 376 "I24-P24" "source"]
+ ["LYT-14" "8 controls cols 47 48" "1S4T" 1536  1 4 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-15" "8 controls cols 47 48" "2S2T" 1536  2 2 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-16" "8 controls cols 47 48" "2S4T" 1536  2 4 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-17" "8 controls cols 47 48" "4S1T" 1536  4 1 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-18" "8 controls cols 47 48" "4S2T" 1536  4 2 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-19" "16 controls col 24" "1S1T" 384  1 1 1 16 368 "A24-P24" "source"]
+ ["LYT-20" "16 controls cols 47 48" "1S4T" 1536  1 4 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-21" "16 controls cols 47 48" "2S2T" 1536  2 2 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-22" "16 controls cols 47 48" "2S4T" 1536  2 4 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-23" "16 controls cols 47 48" "4S1T" 1536  4 1 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-24" "16 controls cols 47 48" "4S2T" 1536  4 2 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-25" "7 controls col 23" "1S1T" 384  1 1 0 7 301 "I23-O23" "source"]
+ ["LYT-26" "7 controls cols 46 47" "1S4T" 1536  1 4 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-27" "7 controls cols 46 47" "2S2T" 1536  2 2 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-28" "7 controls cols 46 47" "2S4T" 1536  2 4 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-29" "7 controls cols 46 47" "4S1T" 1536  4 1 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-30" "7 controls cols 46 47" "4S2T" 1536  4 2 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-31" "14 controls col 23" "1S1T" 384  1 1 0 14 294 "B23-O23" "source"]
+ ["LYT-32" "14 controls cols 46 47" "1S4T" 1536  1 4 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-33" "14 controls cols 46 47" "2S2T" 1536  2 2 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-34" "14 controls cols 46 47" "2S4T" 1536  2 4 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-35" "14 controls cols 46 47" "4S1T" 1536  4 1 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-36" "14 controls cols 46 47" "4S2T" 1536  4 2 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-37" "8 controls cols 47 48" "1S1T" 1536  1 1 1 8 1504 "Q47-AF48" "source"]
+ ["LYT-38" "16 controls cols 47 48" "1S1T" 1536  1 1 1 16 1472 "A47-AF48" "source"]
+ ["LYT-39" "7 controls cols 46 47" "1S1T" 1536  1 1 0 7 1204 "Q46-AE47" "source"]
+
+     
+     ["LYT-40" "14 controls cols 46 47" "1S1T" 1536  1 1 0 14 1176 "B46-AE47" "source"]
+     ["LYT-41" "all blanks" "not reformattable" 1536  1 1 0 0 0 "none" "dest"]
+     
+      ]]
+  
+   ])
+
+
+
+(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
+(map #(jdbc/db-do-commands pg-db %) all-tables)
 ;; errors because brackets not stripped
 ;;(map #(jdbc/insert-multi! pg-db %) required-data)
 (map #(apply jdbc/insert-multi! pg-db % ) required-data)
 
 
+
+
+
+ 
+      ]]]
+
+
+
+ ["LYT-5" "4 controls cols 23 24" "4S1T" 384  4 1 1 4 368 "I23-P24" "dest"]
+ ["LYT-6" "4 controls cols 23 24" "4S2T" 384  4 2 1 4 368 "I23-P24" "dest"]
+ ["LYT-7" "8 controls col 12" "1S1T" 96  1 1 1 8 88 "A12-H12" "source"]
+ ["LYT-8" "8 controls cols 23 24" "1S4T" 384  1 4 1 8 352 "A23-P24" "dest"]
+ ["LYT-9" "8 controls cols 23 24" "2S2T" 384  2 2 1 8 352 "A23-P24" "dest"]
+ ["LYT-10" "8 controls cols 23 24" "2S4T" 384  2 4 1 8 352 "A23-P24" "dest"]
+ ["LYT-11" "8 controls cols 23 24" "4S1T" 384  4 1 1 8 352 "A23-P24" "dest"]
+ ["LYT-12" "8 controls cols 23 24" "4S2T" 384  4 2 1 8 352 "A23-P24" "dest"]
+ ["LYT-13" "8 controls col 24" "1S1T" 384  1 1 1 8 376 "I24-P24" "source"]
+ ["LYT-14" "8 controls cols 47 48" "1S4T" 1536  1 4 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-15" "8 controls cols 47 48" "2S2T" 1536  2 2 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-16" "8 controls cols 47 48" "2S4T" 1536  2 4 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-17" "8 controls cols 47 48" "4S1T" 1536  4 1 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-18" "8 controls cols 47 48" "4S2T" 1536  4 2 1 8 1504 "Q47-AF48" "dest"]
+ ["LYT-19" "16 controls col 24" "1S1T" 384  1 1 1 16 368 "A24-P24" "source"]
+ ["LYT-20" "16 controls cols 47 48" "1S4T" 1536  1 4 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-21" "16 controls cols 47 48" "2S2T" 1536  2 2 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-22" "16 controls cols 47 48" "2S4T" 1536  2 4 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-23" "16 controls cols 47 48" "4S1T" 1536  4 1 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-24" "16 controls cols 47 48" "4S2T" 1536  4 2 1 16 1472 "A47-AF48" "dest"]
+ ["LYT-25" "7 controls col 23" "1S1T" 384  1 1 0 7 301 "I23-O23" "source"]
+ ["LYT-26" "7 controls cols 46 47" "1S4T" 1536  1 4 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-27" "7 controls cols 46 47" "2S2T" 1536  2 2 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-28" "7 controls cols 46 47" "2S4T" 1536  2 4 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-29" "7 controls cols 46 47" "4S1T" 1536  4 1 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-30" "7 controls cols 46 47" "4S2T" 1536  4 2 0 7 1204 "Q46-AE47" "dest"]
+ ["LYT-31" "14 controls col 23" "1S1T" 384  1 1 0 14 294 "B23-O23" "source"]
+ ["LYT-32" "14 controls cols 46 47" "1S4T" 1536  1 4 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-33" "14 controls cols 46 47" "2S2T" 1536  2 2 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-34" "14 controls cols 46 47" "2S4T" 1536  2 4 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-35" "14 controls cols 46 47" "4S1T" 1536  4 1 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-36" "14 controls cols 46 47" "4S2T" 1536  4 2 0 14 1176 "B46-AE47" "dest"]
+ ["LYT-37" "8 controls cols 47 48" "1S1T" 1536  1 1 1 8 1504 "Q47-AF48" "source"]
+ ["LYT-38" "16 controls cols 47 48" "1S1T" 1536  1 1 1 16 1472 "A47-AF48" "source"]
+ ["LYT-39" "7 controls cols 46 47" "1S1T" 1536  1 1 0 7 1204 "Q46-AE47" "source"]
 
 
 
