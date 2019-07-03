@@ -17,21 +17,14 @@
             :ssl false
             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
+(load "/clojure/lnmanager/data-sets")
 
-(def all-table-names-old
-  ;;for use in a map function that will delete all tables
-  ;;single command looks like:  (jdbc/drop-table-ddl  :lnuser {:conditional? true } )
-  [ :worklists :rearray_pairs :temp_accs_id :import_plate_layout :plate_layout :well_type :hit_sample :hit_list :assay_result :assay_run :assay_type :well_sample :sample :well :plate :plate_set :layout_source_dest :plate_layout_name :plate_format :plate_type :project :lnsession :lnuser :lnuser_groups] )
 
 (def all-table-names
   ;;for use in a map function that will delete all tables
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [["worklists"]["rearray_pairs"]["temp_accs_id"]["import_plate_layout"]["plate_layout"]["well_type"]["hit_sample"]["hit_list"]["assay_result"]["assay_run"]["assay_type"]["well_sample"]["sample"]["well"]["plate"]["plate_set"]["layout_source_dest"]["plate_layout_name"]["plate_format"]["plate_type"]["project"]["lnsession"]["lnuser"]["lnuser_groups"]] )
+  ["well_numbers" "worklists" "rearray_pairs" "temp_accs_id" "import_plate_layout" "plate_layout" "well_type" "hit_sample" "hit_list" "assay_result" "assay_run" "assay_type" "well_sample" "sample" "well" "plate" "plate_plate_set" "plate_set" "layout_source_dest" "plate_layout_name" "plate_format" "plate_type" "project" "lnsession" "lnuser" "lnuser_groups"] )
 
-(map #(apply jdbc/db-do-commands pg-db '("DROP TABLE IF EXISTS % CASCADE;")) all-table-names)
-
-(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
-(map #(apply jdbc/insert-multi! pg-db % ) required-data)
 
 
 (def all-tables
@@ -250,7 +243,7 @@
                                  [:dest :int]
                                  ])]
  
-       [(jdbc/create-table-ddl :worlists
+       [(jdbc/create-table-ddl :worklists
                           [   [:rearray_pairs_id :int]
                             [:sample_id :int]
                            [:source_plate "varchar(10)"]
@@ -260,7 +253,19 @@
                            ["FOREIGN KEY (rearray_pairs_id) REFERENCES rearray_pairs(id)  ON DELETE cascade"]
                            ["FOREIGN KEY (sample_id) REFERENCES sample(id)"]
                            ])]
- 
+
+       [(jdbc/create-table-ddl :well_numbers
+                          [   [:plate_format :int]
+                           [:well_name "varchar(5)"]
+                            [:row "varchar(2)"]
+                           [:row_num :int]
+                           [:col "varchar(2)"]
+                           [:total_col_count :int]
+                           [:by_row :int]
+                           [:by_col :int]
+                           [:quad :int]
+                           [:parent_well :int]
+                           ])]
    ])
 
 
@@ -298,11 +303,8 @@
    ["CREATE INDEX ON temp_accs_id(by_col);"]
    ["CREATE INDEX ON rearray_pairs(src);"]
    ["CREATE INDEX ON rearray_pairs(dest);"]
+   ["CREATE INDEX ON well_numbers(by_col);"]
    ])
-
-(map #(jdbc/db-do-commands pg-db %) all-indices)
-
-(map #(jdbc/db-do-commands pg-db %) all-tables)
 
  
 (def required-data
@@ -378,28 +380,34 @@
    [["ELISA"]["Octet"]["SNP"]["HCS"]["HTRF"]["FACS"]]]
 
     [ :well_type [:name ]
-   [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
+     [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
+   
+   [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
+   ln.data-sets/well-numbers
+    ]
+
+      [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
+   ln.data-sets/plate-layout-data
+    ]
 
    ])
 
 
+(defn initialize-limsnucleus
+  ;;(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
+  []
+  (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+ 
+  (doall (map #(jdbc/db-do-commands pg-db true %) all-tables))
+  (doall  (map #(jdbc/db-do-commands pg-db true %) all-indices))
+    ;; errors because brackets not stripped
+    ;;(map #(jdbc/insert-multi! pg-db %) required-data)
+  (doall  (map #(apply jdbc/insert-multi! pg-db % ) required-data))
+   (println "at 5"))
+ 
 
-(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
-(map #(jdbc/db-do-commands pg-db %) all-tables)
-(map #(jdbc/db-do-commands pg-db %) all-indices)
-;; errors because brackets not stripped
-;;(map #(jdbc/insert-multi! pg-db %) required-data)
-(map #(apply jdbc/insert-multi! pg-db % ) required-data)
+(initialize-limsnucleus)
 
-
-
-
-
-(clojure.pprint/pprint (first required-data))
-
-(def wells96 ["A01" "B01" "C01" "D01" "E01" "F01" "G01" "H01" "A02" "B02" "C02" "D02" "E02" "F02" "G02" "H02" "A03" "B03" "C03" "D03" "E03" "F03" "G03" "H03" "A04" "B04" "C04" "D04" "E04" "F04" "G04" "H04" "A05" "B05" "C05" "D05" "E05" "F05" "G05" "H05" "A06" "B06" "C06" "D06" "E06" "F06" "G06" "H06" "A07" "B07" "C07" "D07" "E07" "F07" "G07" "H07" "A08" "B08" "C08" "D08" "E08" "F08" "G08" "H08" "A09" "B09" "C09" "D09" "E09" "F09" "G09" "H09" "A10" "B10" "C10" "D10" "E10" "F10" "G10" "H10" "A11" "B11" "C11" "D11" "E11" "F11" "G11" "H11" "A12" "B12" "C12" "D12" "E12" "F12" "G12" "H12"])
-
-(def wells384 ["A01" "B01" "C01" "D01" "E01" "F01" "G01" "H01" "I01" "J01" "K01" "L01" "M01" "N01" "O01" "P01" "A02" "B02" "C02" "D02" "E02" "F02" "G02" "H02" "I02" "J02" "K02" "L02" "M02" "N02" "O02" "P02" "A03" "B03" "C03" "D03" "E03" "F03" "G03" "H03" "I03" "J03" "K03" "L03" "M03" "N03" "O03" "P03" "A04" "B04" "C04" "D04" "E04" "F04" "G04" "H04" "I04" "J04" "K04" "L04" "M04" "N04" "O04" "P04" "A05" "B05" "C05" "D05" "E05" "F05" "G05" "H05" "I05" "J05" "K05" "L05" "M05" "N05" "O05" "P05" "A06" "B06" "C06" "D06" "E06" "F06" "G06" "H06" "I06" "J06" "K06" "L06" "M06" "N06" "O06" "P06" "A07" "B07" "C07" "D07" "E07" "F07" "G07" "H07" "I07" "J07" "K07" "L07" "M07" "N07" "O07" "P07" "A08" "B08" "C08" "D08" "E08" "F08" "G08" "H08" "I08" "J08" "K08" "L08" "M08" "N08" "O08" "P08" "A09" "B09" "C09" "D09" "E09" "F09" "G09" "H09" "I09" "J09" "K09" "L09" "M09" "N09" "O09" "P09" "A10" "B10" "C10" "D10" "E10" "F10" "G10" "H10" "I10" "J10" "K10" "L10" "M10" "N10" "O10" "P10" "A11" "B11" "C11" "D11" "E11" "F11" "G11" "H11" "I11" "J11" "K11" "L11" "M11" "N11" "O11" "P11" "A12" "B12" "C12" "D12" "E12" "F12" "G12" "H12" "I12" "J12" "K12" "L12" "M12" "N12" "O12" "P12" "A13" "B13" "C13" "D13" "E13" "F13" "G13" "H13" "I13" "J13" "K13" "L13" "M13" "N13" "O13" "P13" "A14" "B14" "C14" "D14" "E14" "F14" "G14" "H14" "I14" "J14" "K14" "L14" "M14" "N14" "O14" "P14" "A15" "B15" "C15" "D15" "E15" "F15" "G15" "H15" "I15" "J15" "K15" "L15" "M15" "N15" "O15" "P15" "A16" "B16" "C16" "D16" "E16" "F16" "G16" "H16" "I16" "J16" "K16" "L16" "M16" "N16" "O16" "P16" "A17" "B17" "C17" "D17" "E17" "F17" "G17" "H17" "I17" "J17" "K17" "L17" "M17" "N17" "O17" "P17" "A18" "B18" "C18" "D18" "E18" "F18" "G18" "H18" "I18" "J18" "K18" "L18" "M18" "N18" "O18" "P18" "A19" "B19" "C19" "D19" "E19" "F19" "G19" "H19" "I19" "J19" "K19" "L19" "M19" "N19" "O19" "P19" "A20" "B20" "C20" "D20" "E20" "F20" "G20" "H20" "I20" "J20" "K20" "L20" "M20" "N20" "O20" "P20" "A21" "B21" "C21" "D21" "E21" "F21" "G21" "H21" "I21" "J21" "K21" "L21" "M21" "N21" "O21" "P21" "A22" "B22" "C22" "D22" "E22" "F22" "G22" "H22" "I22" "J22" "K22" "L22" "M22" "N22" "O22" "P22" "A23" "B23" "C23" "D23" "E23" "F23" "G23" "H23" "I23" "J23" "K23" "L23" "M23" "N23" "O23" "P23" "A24" "B24" "C24" "D24" "E24" "F24" "G24" "H24" "I24" "J24" "K24" "L24" "M24" "N24" "O24" "P24" ])
-
+(clojure.pprint/pprint (first ln.data-sets/well-numbers))
 
 
