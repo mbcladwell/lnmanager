@@ -18,6 +18,7 @@
             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
 (load "/clojure/lnmanager/data-sets")
+(load "/clojure/lnmanager/db-functions")
 
 
 (def all-table-names
@@ -403,11 +404,15 @@
     ;; errors because brackets not stripped
     ;;(map #(jdbc/insert-multi! pg-db %) required-data)
   (doall  (map #(apply jdbc/insert-multi! pg-db % ) required-data))
+  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.db-functions/drop-all-functions))
+  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.db-functions/all-functions))
+
+  
    (println "at 5"))
  
 
-(initialize-limsnucleus)
+;;(initialize-limsnucleus)
 
-(clojure.pprint/pprint (first ln.data-sets/well-numbers))
+;;(clojure.pprint/pprint (first ln.data-sets/well-numbers))
 
 
