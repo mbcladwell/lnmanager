@@ -414,6 +414,7 @@ SELECT plate_layout_name.plate_format_id FROM plate_layout_name, assay_run WHERE
    END LOOP;
 
 END LOOP;
+DROP TABLE data_set;
 
 END;
 $BODY$
@@ -442,9 +443,9 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-hit-list ["DROP FUNCTION IF EXISTS new_hit_list(_name VARCHAR, _descr VARCHAR, _num_hits INTEGER, _assay_run_id INTEGER, _lnsession_id INTEGER, hit_list integer[]);"])
+(def drop-new-hit-list ["DROP FUNCTION IF EXISTS new_hit_list(_name VARCHAR(250), _descr VARCHAR(250), _num_hits INTEGER, _assay_run_id INTEGER, _lnsession_id INTEGER, hit_list integer[]);"])
 
-(def new-hit-list ["CREATE OR REPLACE FUNCTION new_hit_list(_name VARCHAR, _descr VARCHAR, _num_hits INTEGER, _assay_run_id INTEGER, _lnsession_id INTEGER, hit_list integer[])
+(def new-hit-list ["CREATE OR REPLACE FUNCTION new_hit_list(_name VARCHAR(250), _descr VARCHAR(250), _num_hits INTEGER, _assay_run_id INTEGER, _lnsession_id INTEGER, hit_list integer[])
   RETURNS void AS
 $BODY$
 DECLARE

@@ -19,6 +19,8 @@
 
 (load "/clojure/lnmanager/data-sets")
 (load "/clojure/lnmanager/db-functions")
+(load "/clojure/lnmanager/example-data")
+
 
 
 (def all-table-names
@@ -411,8 +413,24 @@
    (println "at 5"))
  
 
-;;(initialize-limsnucleus)
+(defn add-example-data
+  ;;
+  []
+
+(doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/add-example-data-pre-assay))
+
+  ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
+  (jdbc/insert-multi! pg-db :assay_result [:assay_run_id :plate_order :well :response]
+                                        ln.example-data/assay-data )
+
+  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/add-example-data-post-assay))
+
+  
+  )
+
+
+
+
+(initialize-limsnucleus)
 
 ;;(clojure.pprint/pprint (first ln.data-sets/well-numbers))
-
-
