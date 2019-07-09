@@ -1,4 +1,4 @@
-(ns ln.db
+(ns lnmanager.db
   (:require [clojure.java.jdbc :as jdbc]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
@@ -20,6 +20,7 @@
 (load "/clojure/lnmanager/data-sets")
 (load "/clojure/lnmanager/db-functions")
 (load "/clojure/lnmanager/example-data")
+(load "/clojure/lnmanager/session")
 
 
 

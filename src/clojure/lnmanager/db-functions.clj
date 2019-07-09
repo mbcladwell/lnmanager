@@ -1,4 +1,4 @@
-(ns ln.db-functions
+(ns lnmanager.db-functions
    )
 ;;
 

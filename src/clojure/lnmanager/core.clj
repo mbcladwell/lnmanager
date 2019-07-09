@@ -1,7 +1,11 @@
 (ns lnmanager.core
+  (:require [lnmanager.session])
   (:gen-class))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  (lnmanager.session/open-props-if-exists))
+
+
+(-main)
