@@ -1,4 +1,4 @@
-(ns pm.sql
+(ns lnmanager.sql
   (:require [clojure.java.jdbc :as sql])
   (:import java.sql.DriverManager))
 

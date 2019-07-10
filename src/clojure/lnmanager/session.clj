@@ -90,3 +90,7 @@
 
 	;;	(post-load-properties "elephantsql"))
 
+(defn -getlaspng
+  ;;get the logo
+  []
+  (io/resource "images/las.png"))

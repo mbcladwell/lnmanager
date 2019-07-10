@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :source-paths ["src/clojure/"]
   :java-source-paths ["src/java"]
+  :resource-paths ["resources"]
    :javac-options     ["-target" "1.8" "-source" "1.8"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [cider/cider-nrepl "0.11.0-SNAPSHOT"]
@@ -41,5 +42,6 @@
 
 
   :main ^:skip-aot lnmanager.core
+  :aot :all
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

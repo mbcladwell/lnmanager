@@ -10,14 +10,13 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,8 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;;
-
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
 
 public class DialogPropertiesNotFound extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
@@ -37,13 +36,12 @@ public class DialogPropertiesNotFound extends JDialog
   static JLabel label;
   static JLabel nLabel;
     
-  static JTextField fileField;
   static JTextField nameField;
   static JTextField descrField;
   static JTextField layoutField;
   static JTextField nField;
 
-    //panel 2 fields
+    //panel 2 components
     static JTextField userField;
     static JTextField passwordField;
     static JTextField hostField;
@@ -51,7 +49,14 @@ public class DialogPropertiesNotFound extends JDialog
     static JComboBox vendorBox;
     static JComboBox sourceBox;
     static JButton createLnProps;  
-    
+
+    //panel 3 components
+    static JButton createTablesButton;  
+    static JButton loadEgDataButton;
+    static JButton deleteTablesButton;
+    static JButton deleteEgDataButton; 
+
+
     
   static JButton okButton;
   static JButton elephantsql;
@@ -80,18 +85,18 @@ ImageIcon icon = null;
  */
 
     JPanel panel1 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Find ln-props", icon, panel1,
-                  "Select a properties file");
+tabbedPane.addTab("Evaluate with E-SQL", icon, panel1,
+                  "Use ElephantSQL example data");
 tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 JPanel panel2 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Create ln-props", icon, panel2,
+tabbedPane.addTab("Find/Create ln-props", icon, panel2,
                   "Configure Database Connection");
 tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
 JPanel panel3 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Admin", icon, panel3,
-                  "Admin activities");
+tabbedPane.addTab("Database setup", icon, panel3,
+                  "Create table, functions, etc.");
 tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     JPanel pane = new JPanel(new GridBagLayout());
@@ -101,61 +106,55 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     // Image img = new
     // ImageIcon(DialogAddProject.class.getResource("../resources/mwplate.png")).getImage();
     // this.setIconImage(img);
-    this.setTitle("ln-props Not Found!");
+    this.setTitle("Administrator Activities");
     // c.gridwidth = 2;
-    label = new JLabel("OR");
+
+  try {
+      ImageIcon logo =
+          new ImageIcon( 
+			this.getClass().getResource("images/las.png"));
+      JLabel logolabel = new JLabel(logo, JLabel.CENTER);
+      c.gridx=0;
+      c.gridwidth=3;
+      c.gridy=0;
+      
+      panel1.add(logolabel, c);
+    } catch (Exception ex) {
+      LOGGER.severe(ex + " las image not found");
+      LOGGER.severe((new java.io.File(DialogPropertiesNotFound.class.getProtectionDomain().getCodeSource().getLocation().getPath())).toString());
+    
+    }
+ 
+
+    
+    elephantsql =  new JButton( "Connect to ElephantSQL");
+    elephantsql.setMnemonic(KeyEvent.VK_E);    
+    elephantsql.setEnabled(true);
+    c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 0;
     c.gridy = 1;
     c.gridwidth = 1;
     c.gridheight = 1;
     c.insets = new Insets(5, 5, 2, 2);
-    panel1.add(label, c);
-
-    elephantsql =  new JButton( "Connect to ElephantSQL");
-    elephantsql.setMnemonic(KeyEvent.VK_E);
-    
-    elephantsql.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
     elephantsql.addActionListener(this);
     panel1.add(elephantsql, c);
 
     label = new JLabel("for evaluation purposes only - no personal data.");
     c.gridx = 1;
-    c.gridy = 0;
+    c.gridy = 1;
     c.gridwidth = 3;
     c.gridheight = 1;
     c.insets = new Insets(5, 5, 2, 2);
   panel1.add(label, c);
+ 
 
-    
-    select =
-        new JButton(
-            "Select properties file...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
-    select.setMnemonic(KeyEvent.VK_O);
-    select.setActionCommand("select");
-    select.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
+  label = new JLabel("ElephantSQL example data set refreshed daily at midnight.");
     c.gridx = 0;
-    c.gridy = 6;
-    c.gridwidth = 1;
+    c.gridy = 2;
+    c.gridwidth = 2;
     c.gridheight = 1;
-    select.addActionListener(this);
-    panel1.add(select, c);
+    panel1.add(label, c);
 
-    fileField = new JTextField(30);
-    c.gridx = 1;
-    c.gridy = 6;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    fileField.getDocument().addDocumentListener(this);
-    panel1.add(fileField, c);
-
-
-    
     JButton helpButton = new JButton("Help");
     helpButton.setMnemonic(KeyEvent.VK_H);
     helpButton.setActionCommand("help");
@@ -185,19 +184,6 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     //helpButton.setMargin(new Insets(1, -40, 1, -100)); //(top, left, bottom, right)
 
     
-    okButton = new JButton("Connect (properties database)" );
-    okButton.setMnemonic(KeyEvent.VK_C);
-    okButton.setActionCommand("ok");
-    okButton.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 8;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel1.add(okButton, c);
-    okButton.setEnabled(false);
-    okButton.addActionListener(this);
-
     cancelButton = new JButton("Cancel");
     cancelButton.setMnemonic(KeyEvent.VK_C);
     cancelButton.setActionCommand("cancel");
@@ -217,15 +203,57 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
  * Panel2 collect properties 
  * 
  */
+
+        select =
+        new JButton(
+            "Find ln-props...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
+    select.setMnemonic(KeyEvent.VK_O);
+    select.setActionCommand("select");
+    select.setEnabled(true);
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 1;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    select.addActionListener(this);
+    panel2.add(select, c);
+
+    JButton helpButton2 = new JButton("Help");
+    helpButton2.setMnemonic(KeyEvent.VK_H);
+    helpButton2.setActionCommand("help");
+    c.fill = GridBagConstraints.NONE;
+    c.gridx = 3;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel2.add(helpButton2, c);
+      try {
+      ImageIcon help =
+          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
+      helpButton2.setIcon(help);
+    } catch (Exception ex) {
+      System.out.println("Can't find help icon: " + ex);
+    }
+    helpButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    helpButton2.setSize(10, 10);
+
+
+    
     ComboItem[] vendorTypes = new ComboItem[]{ new ComboItem(1,"PostgreSQL"), new ComboItem(2,"MySQL"), new ComboItem(3,"SQLite") };
     
 	vendorBox = new JComboBox<ComboItem>(vendorTypes);
 	vendorBox.setSelectedIndex(0);
 	vendorBox.setEnabled(false);
 	c.gridx = 1;
-	c.gridy = 0;
+	c.gridy = 1;
 	c.gridheight = 1;
 	c.gridwidth = 3;
+    c.fill = GridBagConstraints.HORIZONTAL;
 	c.anchor = GridBagConstraints.LINE_START;
 	panel2.add(vendorBox, c);
 	vendorBox.addActionListener(new ActionListener() { 
@@ -250,7 +278,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	vendorBox.setSelectedIndex(0);
 	c.gridx = 1;
-	c.gridy = 1;
+	c.gridy = 2;
 	c.gridheight = 1;
 	c.gridwidth = 3;
 	c.anchor = GridBagConstraints.LINE_START;
@@ -283,7 +311,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     
     label = new JLabel("Database Vendor:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 0;
+    c.gridy = 1;
     c.gridwidth = 1;
     c.gridheight = 1;
     c.insets = new Insets(5, 5, 2, 2);
@@ -291,63 +319,63 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
       label = new JLabel("Source:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 1;
+    c.gridy = 2;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
       label = new JLabel("Host:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 2;
+    c.gridy = 3;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
      label = new JLabel("Port:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 3;
+    c.gridy = 4;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
      label = new JLabel("User Name:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 4;
+    c.gridy = 5;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel("Password:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 5;
+    c.gridy = 6;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
 label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 6;
+    c.gridy = 7;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel("Home Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 7;
+    c.gridy = 8;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel("Temp Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 8;
+    c.gridy = 9;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     hostField = new JTextField(50);
     c.gridx = 1;
-    c.gridy = 2;
+    c.gridy = 3;
     c.gridwidth = 3;
     c.gridheight = 1;
     panel2.add(hostField, c);
@@ -355,7 +383,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     portField = new JTextField(5);
     portField.setText("5432");	    
     c.gridx = 1;
-    c.gridy = 3;
+    c.gridy = 4;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(portField, c);
@@ -363,7 +391,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     userField = new JTextField(50);
     userField.setText("ln_admin");
     c.gridx = 1;
-    c.gridy = 4;
+    c.gridy = 5;
     c.gridwidth = 3;
     c.gridheight = 1;
     panel2.add(userField, c);
@@ -371,28 +399,28 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     passwordField = new JTextField(50);
     passwordField.setText("welcome");
     c.gridx = 1;
-    c.gridy = 5;
+    c.gridy = 6;
     c.gridwidth = 3;
     c.gridheight = 1;
     panel2.add(passwordField, c);
 
        label = new JLabel(System.getProperty("user.dir"), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 6;
+    c.gridy = 7;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel(System.getProperty("user.home"), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 7;
+    c.gridy = 8;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel(System.getProperty("java.io.tmpdir"), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 8;
+    c.gridy = 9;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
@@ -404,11 +432,167 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     select.setEnabled(true);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
-    c.gridy = 9;
+    c.gridy = 10;
     c.gridwidth = 1;
     c.gridheight = 1;
     select.addActionListener(this);
     panel2.add(createLnProps, c);
+
+  okButton = new JButton("Connect (ln-props database)" );
+    okButton.setMnemonic(KeyEvent.VK_P);
+    okButton.setActionCommand("ok");
+    okButton.setEnabled(true);
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 2;
+    c.gridy = 10;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel2.add(okButton, c);
+    okButton.setEnabled(false);
+    okButton.addActionListener(this);
+
+    c.gridx = 3;
+    c.gridy = 10;
+    panel2.add(cancelButton, c);
+
+    //panel 3
+
+    Icon warnIcon = UIManager.getIcon("OptionPane.warningIcon");
+JLabel warningLabel = new JLabel(warnIcon);
+    c.gridx = 0;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(warningLabel, c);
+
+    JButton helpButton3 = new JButton("Help");
+    helpButton3.setMnemonic(KeyEvent.VK_H);
+    helpButton3.setActionCommand("help");
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 0;
+    c.gridy = 1;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(helpButton3, c);
+      try {
+      ImageIcon help =
+          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
+      helpButton3.setIcon(help);
+    } catch (Exception ex) {
+      System.out.println("Can't find help icon: " + ex);
+    }
+    helpButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    helpButton3.setSize(10, 10);
+
+
+    createTablesButton = new JButton("Create tables");
+    createTablesButton.setMnemonic(KeyEvent.VK_T);
+    c.gridx = 0;
+    c.gridy = 2;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(createTablesButton, c);
+    createTablesButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    createTablesButton.setSize(10, 10);
+
+        loadEgDataButton = new JButton("Load example data");
+    loadEgDataButton.setMnemonic(KeyEvent.VK_T);
+    c.gridx = 0;
+    c.gridy = 3;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(loadEgDataButton, c);
+    loadEgDataButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    loadEgDataButton.setSize(10, 10);
+
+
+    deleteTablesButton = new JButton("Delete tables");
+    deleteTablesButton.setMnemonic(KeyEvent.VK_T);
+    c.gridx = 0;
+    c.gridy = 4;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(deleteTablesButton, c);
+    deleteTablesButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    createTablesButton.setSize(10, 10);
+
+     deleteEgDataButton = new JButton("Delete example data");
+    deleteEgDataButton.setMnemonic(KeyEvent.VK_T);
+    c.gridx = 0;
+    c.gridy = 5;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(deleteEgDataButton, c);
+    deleteEgDataButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    deleteEgDataButton.setSize(10, 10);
+
+        
+     label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(label, c);
+
+    label = new JLabel("Read the help before proceeding.", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 1;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(label, c);
+
+    label = new JLabel("Create tables, functions and required data e.g. plate layouts and assay types.", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 2;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(label, c);
+
+        label = new JLabel("Load optional example data that will allow you to excercise LIMS*Nucleus.", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 3;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(label, c);
+
+         label = new JLabel("Delete tables, functions and all data leaving an empty database.", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 4;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(label, c);
+
+        label = new JLabel("Delete optional example data only, preserving tables, functions and required data e.g. layouts.", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 5;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel3.add(label, c);
 
 
     
@@ -436,8 +620,9 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
       int top_n_number = 0;
 
     if (e.getSource() == okButton) {
+	/*
 	try{
-	FileInputStream fis = new FileInputStream(fileField.getText());
+	    //FileInputStream fis = new FileInputStream(fileField.getText());
 	//session.setPropertiesFile(fis);
 	//session.loadProperties();
 	    //if(session.getUserName().equals("null")){
@@ -450,6 +635,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 	}catch(FileNotFoundException fnfe){
 	    
 	}
+	*/
     }
   
 	
@@ -465,7 +651,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
         // This is where a real application would open the file.
-        fileField.setText(file.toString());
+        //fileField.setText(file.toString());
       } else {
         LOGGER.info("Open command cancelled by user.\n");
       }
@@ -474,23 +660,10 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 
   public void insertUpdate(DocumentEvent e) {
 
-    if ( fileField.getText().length() > 0) {
-      okButton.setEnabled(true);
-      elephantsql.setEnabled(false);
-    } else {
-      okButton.setEnabled(false);
-      elephantsql.setEnabled(true);
-    }
   }
 
   public void removeUpdate(DocumentEvent e) {
-    if ( fileField.getText().length() > 0) {
-      okButton.setEnabled(true);
-      elephantsql.setEnabled(false);
-    } else {
-      okButton.setEnabled(false);
-      elephantsql.setEnabled(true);
-    }
+
   }
 
   public void changedUpdate(DocumentEvent e) {
