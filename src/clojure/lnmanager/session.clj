@@ -6,7 +6,9 @@
             [codax.core :as c]
             [clojure.java.io :as io])
   (:import java.sql.DriverManager)
-  (:gen-class))
+  (:gen-class
+   :name lnmanager.session
+   :methods [#^{:static true}[createlnprops[]]]))
 
 
 (defn open-props-if-exists
@@ -20,7 +22,7 @@
       (def props (c/open-database! (str (java.lang.System/getProperty "user.home") "/ln-props") ))
       (lnmanager.DialogPropertiesNotFound.))))
 
-
+;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 
     
 (defn setup-local-postgres-session []
@@ -41,6 +43,24 @@
 ;;(c/update-at! props [:conn :source ]  {:source "dooby"})
 ;;(c/assoc-at! props [:conn :source ]  {:source "dooby"})
 
+(defn createlnprops[] true)
+
+(defn -createlnprops
+  ;;
+  []
+(c/assoc-at! props [:conn] {:host ""
+	              :port ""
+	              :sslmode ""
+	              :source "local"
+                      :dbname "lndb"
+                      :help-url-prefix "labsolns.com/software"
+                      :password "welcome"
+	              :user "ln-admin"	  
+	              :temp-dir  (java.lang.System/getProperty "java.io.tmpdir")
+	              :working-dir  (java.lang.System/getProperty "user.dir")
+                      :home-dir  (java.lang.System/getProperty "user.home")}))
+
+  
 
 (defn get-host []
    (c/get-at! props [:conn :host]))
@@ -90,7 +110,3 @@
 
 	;;	(post-load-properties "elephantsql"))
 
-(defn -getlaspng
-  ;;get the logo
-  []
-  (io/resource "images/las.png"))

@@ -14,8 +14,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,11 +27,13 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
+import lnmanager.session;
 
 public class DialogPropertiesNotFound extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
@@ -49,7 +54,9 @@ public class DialogPropertiesNotFound extends JDialog
     static JComboBox vendorBox;
     static JComboBox sourceBox;
     static JButton createLnProps;  
-
+    static JRadioButton trueButton;
+    static JRadioButton falseButton;
+    
     //panel 3 components
     static JButton createTablesButton;  
     static JButton loadEgDataButton;
@@ -273,7 +280,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
         }
     });
 
-	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(3,"ElephantSQL (Cloud)"), new ComboItem(4,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local (personal workstation / laptop)")};
+	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(3,"ElephantSQL (Cloud)"), new ComboItem(4,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
     
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	vendorBox.setSelectedIndex(0);
@@ -338,6 +345,13 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     c.gridheight = 1;
     panel2.add(label, c);
 
+    label = new JLabel("SSL mode:", SwingConstants.RIGHT);
+    c.gridx = 2;
+    c.gridy = 4;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel2.add(label, c);
+
      label = new JLabel("User Name:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 5;
@@ -388,6 +402,19 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.gridheight = 1;
     panel2.add(portField, c);
 
+    trueButton   = new JRadioButton("True", true);
+    falseButton    = new JRadioButton("False");
+  
+    ButtonGroup bgroup = new ButtonGroup();
+    bgroup.add(trueButton);
+    bgroup.add(falseButton);
+    c.gridx = 2;
+    c.gridy = 4;
+    panel2.add(trueButton, c);
+    c.gridx = 3;
+    panel2.add(falseButton, c);
+
+    
     userField = new JTextField(50);
     userField.setText("ln_admin");
     c.gridx = 1;
@@ -619,6 +646,7 @@ JLabel warningLabel = new JLabel(warnIcon);
   public void actionPerformed(ActionEvent e) {
       int top_n_number = 0;
 
+      
     if (e.getSource() == okButton) {
 	/*
 	try{
@@ -644,7 +672,16 @@ JLabel warningLabel = new JLabel(warnIcon);
       this.dispose();
   }
     
+    if (e.getSource() == createLnProps) {
+          IFn require = Clojure.var("clojure.core", "require");
+          require.invoke(Clojure.read("lnmanager.session"));
 
+Clojure.var("lnmanager.session", "createlnprops").invoke();
+            
+
+    }
+
+    
     if (e.getSource() == select) {
       int returnVal = fileChooser.showOpenDialog(DialogPropertiesNotFound.this);
 
