@@ -6,7 +6,7 @@
   :source-paths ["src/clojure/"]
   :java-source-paths ["src/java"]
   :resource-paths ["resources"]
-   :javac-options     ["-target" "1.8" "-source" "1.8"]
+  :javac-options     ["-target" "1.8" "-source" "1.8"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [cider/cider-nrepl "0.11.0-SNAPSHOT"]
                  [org.clojure/java.jdbc "0.7.5"]
@@ -42,6 +42,6 @@
 
 
   :main ^:skip-aot lnmanager.core
-  :aot [lnmanager.session ]
+  :aot [ ]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

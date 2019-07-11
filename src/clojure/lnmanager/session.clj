@@ -6,9 +6,7 @@
             [codax.core :as c]
             [clojure.java.io :as io])
   (:import java.sql.DriverManager)
-  (:gen-class
-   :name lnmanager.session
-   :methods [#^{:static true}[createlnprops[]]]))
+  (:gen-class ))
 
 
 (defn open-props-if-exists
@@ -23,7 +21,7 @@
       (lnmanager.DialogPropertiesNotFound.))))
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
-
+;;
     
 (defn setup-local-postgres-session []
 (c/assoc-at! props [:conn] {:host "127.0.0.1"
@@ -43,24 +41,36 @@
 ;;(c/update-at! props [:conn :source ]  {:source "dooby"})
 ;;(c/assoc-at! props [:conn :source ]  {:source "dooby"})
 
-(defn createlnprops[] true)
 
-(defn -createlnprops
+(defn set-ln-props [ path-to-db ]
+    (def props (c/open-database! path-to-db))  )
+
+(defn create-ln-props
   ;;
-  []
-(c/assoc-at! props [:conn] {:host ""
-	              :port ""
-	              :sslmode ""
+  [ host port sslmode user password]
+  (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props"))) ;
+
+(c/assoc-at! props [:conn] {:host host
+	              :port port
+	              :sslmode sslmode
 	              :source "local"
                       :dbname "lndb"
                       :help-url-prefix "labsolns.com/software"
-                      :password "welcome"
-	              :user "ln-admin"	  
+                      :password password
+	              :user user  
 	              :temp-dir  (java.lang.System/getProperty "java.io.tmpdir")
 	              :working-dir  (java.lang.System/getProperty "user.dir")
-                      :home-dir  (java.lang.System/getProperty "user.home")}))
+                            :home-dir  (java.lang.System/getProperty "user.home")}))
 
+;;(create-ln-props "127.0.0.1" "5432" "false" "ln_admin" "welcome")
+
+(defn get-all-contents []
   
+  (into {} (java.util.HashMap.
+           {":host" (c/get-at! props [:conn :host])
+            ":port" (c/get-at! props [:conn :port])}))
+  ;;note that the keys must be quoted for java
+  )
 
 (defn get-host []
    (c/get-at! props [:conn :host]))
@@ -74,7 +84,11 @@
 
 ;;(c/close-database! props)
 
+(defn write-out-message [ int ]
+  (* int 3)
+  )
 
+;;(write-out-message "my message")
 
 (defn load-props
   [file-name]

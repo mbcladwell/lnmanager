@@ -8,4 +8,3 @@
   (lnmanager.session/open-props-if-exists))
 
 
-(-main)

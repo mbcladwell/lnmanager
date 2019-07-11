@@ -13,13 +13,12 @@ import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
-import clojure.java.api.Clojure;
-import clojure.lang.IFn;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -31,9 +30,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
-import lnmanager.session;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
+
 
 public class DialogPropertiesNotFound extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
@@ -58,10 +60,6 @@ public class DialogPropertiesNotFound extends JDialog
     static JRadioButton falseButton;
     
     //panel 3 components
-    static JButton createTablesButton;  
-    static JButton loadEgDataButton;
-    static JButton deleteTablesButton;
-    static JButton deleteEgDataButton; 
 
 
     
@@ -80,7 +78,9 @@ public class DialogPropertiesNotFound extends JDialog
 
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
-    
+	IFn require = Clojure.var("clojure.core", "require");
+	require.invoke(Clojure.read("lnmanager.session"));
+
     fileChooser = new JFileChooser();
 
     JTabbedPane tabbedPane = new JTabbedPane();
@@ -229,7 +229,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     helpButton2.setMnemonic(KeyEvent.VK_H);
     helpButton2.setActionCommand("help");
     c.fill = GridBagConstraints.NONE;
-    c.gridx = 3;
+    c.gridx = 5;
     c.gridy = 0;
     c.gridwidth = 1;
     c.gridheight = 1;
@@ -259,7 +259,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	c.gridx = 1;
 	c.gridy = 1;
 	c.gridheight = 1;
-	c.gridwidth = 3;
+	c.gridwidth = 5;
     c.fill = GridBagConstraints.HORIZONTAL;
 	c.anchor = GridBagConstraints.LINE_START;
 	panel2.add(vendorBox, c);
@@ -287,7 +287,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	c.gridx = 1;
 	c.gridy = 2;
 	c.gridheight = 1;
-	c.gridwidth = 3;
+	c.gridwidth = 5;
 	c.anchor = GridBagConstraints.LINE_START;
 	panel2.add(sourceBox, c);
 	sourceBox.addActionListener(new ActionListener() { 
@@ -309,6 +309,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		break;
 	    case 1:
 		hostField.setText("127.0.0.1");
+		falseButton.setSelected(true);
 		//updateAllVariables();
 		break;
 	    }
@@ -344,14 +345,14 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
-
+    
     label = new JLabel("SSL mode:", SwingConstants.RIGHT);
-    c.gridx = 2;
+    c.gridx = 3;
     c.gridy = 4;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
-
+    
      label = new JLabel("User Name:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 5;
@@ -390,7 +391,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     hostField = new JTextField(50);
     c.gridx = 1;
     c.gridy = 3;
-    c.gridwidth = 3;
+    c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(hostField, c);
 
@@ -402,16 +403,16 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.gridheight = 1;
     panel2.add(portField, c);
 
-    trueButton   = new JRadioButton("True", true);
-    falseButton    = new JRadioButton("False");
+    trueButton   = new JRadioButton("True");
+    falseButton    = new JRadioButton("False", true);
   
     ButtonGroup bgroup = new ButtonGroup();
     bgroup.add(trueButton);
     bgroup.add(falseButton);
-    c.gridx = 2;
+    c.gridx = 4;
     c.gridy = 4;
     panel2.add(trueButton, c);
-    c.gridx = 3;
+    c.gridx = 5;
     panel2.add(falseButton, c);
 
     
@@ -419,7 +420,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     userField.setText("ln_admin");
     c.gridx = 1;
     c.gridy = 5;
-    c.gridwidth = 3;
+    c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(userField, c);
 
@@ -427,28 +428,28 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     passwordField.setText("welcome");
     c.gridx = 1;
     c.gridy = 6;
-    c.gridwidth = 3;
+    c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(passwordField, c);
 
        label = new JLabel(System.getProperty("user.dir"), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 7;
-    c.gridwidth = 1;
+    c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel(System.getProperty("user.home"), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 8;
-    c.gridwidth = 1;
+    c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel(System.getProperty("java.io.tmpdir"), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 9;
-    c.gridwidth = 1;
+    c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(label, c);
 
@@ -462,7 +463,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.gridy = 10;
     c.gridwidth = 1;
     c.gridheight = 1;
-    select.addActionListener(this);
+    createLnProps.addActionListener(this);
     panel2.add(createLnProps, c);
 
   okButton = new JButton("Connect (ln-props database)" );
@@ -472,155 +473,19 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 2;
     c.gridy = 10;
-    c.gridwidth = 1;
+    c.gridwidth = 3;
     c.gridheight = 1;
     panel2.add(okButton, c);
     okButton.setEnabled(false);
     okButton.addActionListener(this);
 
-    c.gridx = 3;
+    c.gridx = 5;
     c.gridy = 10;
     panel2.add(cancelButton, c);
 
     //panel 3
 
-    Icon warnIcon = UIManager.getIcon("OptionPane.warningIcon");
-JLabel warningLabel = new JLabel(warnIcon);
-    c.gridx = 0;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(warningLabel, c);
-
-    JButton helpButton3 = new JButton("Help");
-    helpButton3.setMnemonic(KeyEvent.VK_H);
-    helpButton3.setActionCommand("help");
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 1;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(helpButton3, c);
-      try {
-      ImageIcon help =
-          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
-      helpButton3.setIcon(help);
-    } catch (Exception ex) {
-      System.out.println("Can't find help icon: " + ex);
-    }
-    helpButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    helpButton3.setSize(10, 10);
-
-
-    createTablesButton = new JButton("Create tables");
-    createTablesButton.setMnemonic(KeyEvent.VK_T);
-    c.gridx = 0;
-    c.gridy = 2;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(createTablesButton, c);
-    createTablesButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    createTablesButton.setSize(10, 10);
-
-        loadEgDataButton = new JButton("Load example data");
-    loadEgDataButton.setMnemonic(KeyEvent.VK_T);
-    c.gridx = 0;
-    c.gridy = 3;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(loadEgDataButton, c);
-    loadEgDataButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    loadEgDataButton.setSize(10, 10);
-
-
-    deleteTablesButton = new JButton("Delete tables");
-    deleteTablesButton.setMnemonic(KeyEvent.VK_T);
-    c.gridx = 0;
-    c.gridy = 4;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(deleteTablesButton, c);
-    deleteTablesButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    createTablesButton.setSize(10, 10);
-
-     deleteEgDataButton = new JButton("Delete example data");
-    deleteEgDataButton.setMnemonic(KeyEvent.VK_T);
-    c.gridx = 0;
-    c.gridy = 5;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(deleteEgDataButton, c);
-    deleteEgDataButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    deleteEgDataButton.setSize(10, 10);
-
-        
-     label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(label, c);
-
-    label = new JLabel("Read the help before proceeding.", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 1;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(label, c);
-
-    label = new JLabel("Create tables, functions and required data e.g. plate layouts and assay types.", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 2;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(label, c);
-
-        label = new JLabel("Load optional example data that will allow you to excercise LIMS*Nucleus.", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 3;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(label, c);
-
-         label = new JLabel("Delete tables, functions and all data leaving an empty database.", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 4;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(label, c);
-
-        label = new JLabel("Delete optional example data only, preserving tables, functions and required data e.g. layouts.", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 5;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(label, c);
-
+    panel3.add(new DatabaseSetupPanel());
 
     
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
@@ -645,26 +510,11 @@ JLabel warningLabel = new JLabel(warnIcon);
 
   public void actionPerformed(ActionEvent e) {
       int top_n_number = 0;
-
-      
-    if (e.getSource() == okButton) {
-	/*
-	try{
-	    //FileInputStream fis = new FileInputStream(fileField.getText());
-	//session.setPropertiesFile(fis);
-	//session.loadProperties();
-	    //if(session.getUserName().equals("null")){
-	    // new DialogLogin(session, "", java.awt.Dialog.ModalityType.APPLICATION_MODAL);
-	///}else{
-	    // session.postLoadProperties();
-	//	}
        
-	this.dispose();
-	}catch(FileNotFoundException fnfe){
-	    
-	}
-	*/
-    }
+      if (e.getSource() == okButton) {  
+	 
+
+      }
   
 	
   if (e.getSource() == elephantsql) {
@@ -673,22 +523,36 @@ JLabel warningLabel = new JLabel(warnIcon);
   }
     
     if (e.getSource() == createLnProps) {
-          IFn require = Clojure.var("clojure.core", "require");
-          require.invoke(Clojure.read("lnmanager.session"));
-
-Clojure.var("lnmanager.session", "createlnprops").invoke();
-            
-
-    }
+	
+	IFn createLnPropsMethod  = Clojure.var("lnmanager.session", "create-ln-props");	  
+	createLnPropsMethod.invoke( hostField.getText(),
+				      portField.getText(),
+				      Boolean.toString(trueButton.isSelected()),
+				      userField.getText(),
+				      passwordField.getText() );
+	select.setEnabled(false);
+	createLnProps.setEnabled(false);
+	okButton.setEnabled(true);
+	
+   }
 
     
-    if (e.getSource() == select) {
+    if (e.getSource() == select) { //find the ln-props directory and populate text fields
+	fileChooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
       int returnVal = fileChooser.showOpenDialog(DialogPropertiesNotFound.this);
 
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
-        // This is where a real application would open the file.
-        //fileField.setText(file.toString());
+	IFn setLnProps  = Clojure.var("lnmanager.session", "set-ln-props");
+	setLnProps.invoke(file.toString());
+	IFn getAllContents  = Clojure.var("lnmanager.session", "get-all-contents");
+	
+	Map<String, String> results = new HashMap<>();
+	results = (Map<String, String>)getAllContents.invoke();
+	LOGGER.info("results: " + results);
+	LOGGER.info("results.get(:port): " + results.get(":port"));
+	
+	
       } else {
         LOGGER.info("Open command cancelled by user.\n");
       }
