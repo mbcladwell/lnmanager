@@ -58,6 +58,8 @@ public class DialogPropertiesNotFound extends JDialog
     static JButton createLnProps;  
     static JRadioButton trueButton;
     static JRadioButton falseButton;
+    static JLabel selectedLabel;
+    static JLabel selectedLabelResponse;
     
     //panel 3 components
 
@@ -250,6 +252,26 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     helpButton2.setSize(10, 10);
 
 
+    selectedLabel = new JLabel("Selected:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 1;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+	c.anchor = GridBagConstraints.LINE_END;
+    c.insets = new Insets(5, 5, 2, 2);
+    panel2.add(selectedLabel, c);
+
+    selectedLabelResponse = new JLabel("", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 1;
+    c.gridwidth = 4;
+    c.gridheight = 1;
+ 	c.anchor = GridBagConstraints.LINE_START;
+   c.insets = new Insets(5, 5, 2, 2);
+    panel2.add(selectedLabelResponse, c);
+
+
+    
     
     ComboItem[] vendorTypes = new ComboItem[]{ new ComboItem(1,"PostgreSQL"), new ComboItem(2,"MySQL"), new ComboItem(3,"SQLite") };
     
@@ -257,7 +279,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	vendorBox.setSelectedIndex(0);
 	vendorBox.setEnabled(false);
 	c.gridx = 1;
-	c.gridy = 1;
+	c.gridy = 2;
 	c.gridheight = 1;
 	c.gridwidth = 5;
     c.fill = GridBagConstraints.HORIZONTAL;
@@ -285,7 +307,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	vendorBox.setSelectedIndex(0);
 	c.gridx = 1;
-	c.gridy = 2;
+	c.gridy = 3;
 	c.gridheight = 1;
 	c.gridwidth = 5;
 	c.anchor = GridBagConstraints.LINE_START;
@@ -319,7 +341,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     
     label = new JLabel("Database Vendor:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 1;
+    c.gridy = 2;
     c.gridwidth = 1;
     c.gridheight = 1;
     c.insets = new Insets(5, 5, 2, 2);
@@ -327,70 +349,70 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
       label = new JLabel("Source:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 2;
+    c.gridy = 3;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
       label = new JLabel("Host:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 3;
+    c.gridy = 4;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
      label = new JLabel("Port:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 4;
+    c.gridy = 5;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
     
     label = new JLabel("SSL mode:", SwingConstants.RIGHT);
     c.gridx = 3;
-    c.gridy = 4;
+    c.gridy = 5;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
     
      label = new JLabel("User Name:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 5;
+    c.gridy = 6;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel("Password:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 6;
+    c.gridy = 7;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
 label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 7;
+    c.gridy = 8;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel("Home Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 8;
+    c.gridy = 9;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel("Temp Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 9;
+    c.gridy = 10;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
     hostField = new JTextField(50);
     c.gridx = 1;
-    c.gridy = 3;
+    c.gridy = 4;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(hostField, c);
@@ -398,7 +420,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     portField = new JTextField(5);
     portField.setText("5432");	    
     c.gridx = 1;
-    c.gridy = 4;
+    c.gridy = 5;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(portField, c);
@@ -410,7 +432,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     bgroup.add(trueButton);
     bgroup.add(falseButton);
     c.gridx = 4;
-    c.gridy = 4;
+    c.gridy = 5;
     panel2.add(trueButton, c);
     c.gridx = 5;
     panel2.add(falseButton, c);
@@ -419,7 +441,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     userField = new JTextField(50);
     userField.setText("ln_admin");
     c.gridx = 1;
-    c.gridy = 5;
+    c.gridy = 6;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(userField, c);
@@ -427,28 +449,28 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     passwordField = new JTextField(50);
     passwordField.setText("welcome");
     c.gridx = 1;
-    c.gridy = 6;
+    c.gridy = 7;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(passwordField, c);
 
        label = new JLabel(System.getProperty("user.dir"), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 7;
+    c.gridy = 8;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel(System.getProperty("user.home"), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 8;
+    c.gridy = 9;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(label, c);
 
     label = new JLabel(System.getProperty("java.io.tmpdir"), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 9;
+    c.gridy = 10;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(label, c);
@@ -460,7 +482,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     select.setEnabled(true);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
-    c.gridy = 10;
+    c.gridy = 11;
     c.gridwidth = 1;
     c.gridheight = 1;
     createLnProps.addActionListener(this);
@@ -472,7 +494,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     okButton.setEnabled(true);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 2;
-    c.gridy = 10;
+    c.gridy = 11;
     c.gridwidth = 3;
     c.gridheight = 1;
     panel2.add(okButton, c);
@@ -480,7 +502,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     okButton.addActionListener(this);
 
     c.gridx = 5;
-    c.gridy = 10;
+    c.gridy = 11;
     panel2.add(cancelButton, c);
 
     //panel 3
@@ -533,6 +555,10 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 	select.setEnabled(false);
 	createLnProps.setEnabled(false);
 	okButton.setEnabled(true);
+	selectedLabel.setText("Created:");
+	selectedLabel.setForeground(Color.GREEN);
+	String newDirLocation = new String(System.getProperty("user.dir").toString() + "/ln-props");
+	selectedLabelResponse.setText(newDirLocation);
 	
    }
 
@@ -543,15 +569,25 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
+	selectedLabelResponse.setText(file.toString());
 	IFn setLnProps  = Clojure.var("lnmanager.session", "set-ln-props");
 	setLnProps.invoke(file.toString());
-	IFn getAllContents  = Clojure.var("lnmanager.session", "get-all-contents");
+	IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");
 	
 	Map<String, String> results = new HashMap<>();
-	results = (Map<String, String>)getAllContents.invoke();
+	results = (Map<String, String>)getAllProps.invoke();
 	LOGGER.info("results: " + results);
 	LOGGER.info("results.get(:port): " + results.get(":port"));
+	LOGGER.info("results.get(:sslmode): " + results.get(":sslmode"));
 	
+
+		vendorBox.setEnabled(false);
+		sourceBox.setEnabled(false);
+		hostField.setText(results.get(":host"));
+		portField.setText(results.get(":port"));
+		if(Boolean.valueOf(results.get(":sslmode"))){trueButton.setSelected(true);}else{falseButton.setSelected(true);};
+		userField.setText(results.get(":user"));
+		passwordField.setText(results.get(":password"));
 	
       } else {
         LOGGER.info("Open command cancelled by user.\n");

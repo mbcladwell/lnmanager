@@ -8,6 +8,8 @@
   (:import java.sql.DriverManager)
   (:gen-class ))
 
+(load "/lnmanager/db")
+
 
 (defn open-props-if-exists
   ;;1. check working directory - /home/user/my-working-dir
@@ -64,13 +66,32 @@
 
 ;;(create-ln-props "127.0.0.1" "5432" "false" "ln_admin" "welcome")
 
-(defn get-all-contents []
-  
+(defn get-all-props
+  ;;note that the keys must be quoted for java
+  []
   (into {} (java.util.HashMap.
            {":host" (c/get-at! props [:conn :host])
-            ":port" (c/get-at! props [:conn :port])}))
-  ;;note that the keys must be quoted for java
-  )
+            ":port" (c/get-at! props [:conn :port])
+           ":sslmode" (c/get-at! props [:conn :sslmode])
+          ":source" (c/get-at! props [:conn :source])
+          ":dbname" (c/get-at! props [:conn :dbname])
+          ":help-url-prefix" (c/get-at! props [:conn :help-url-prefix])
+          ":password" (c/get-at! props [:conn :password])
+          ":user" (c/get-at! props [:conn :user])})))
+
+(defn get-all-props-clj
+  ;;a map for clojure
+  [] 
+  ({:host (c/get-at! props [:conn :host])
+    :port (c/get-at! props [:conn :port])
+    :sslmode (c/get-at! props [:conn :sslmode])
+    :source (c/get-at! props [:conn :source])
+    :dbname (c/get-at! props [:conn :dbname])
+    :help-url-prefix (c/get-at! props [:conn :help-url-prefix])
+    :password (c/get-at! props [:conn :password])
+    :user (c/get-at! props [:conn :user])}))
+
+
 
 (defn get-host []
    (c/get-at! props [:conn :host]))
@@ -124,3 +145,4 @@
 
 	;;	(post-load-properties "elephantsql"))
 
+(lnmanager.DialogPropertiesNotFound.)

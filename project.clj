@@ -9,6 +9,7 @@
   :javac-options     ["-target" "1.8" "-source" "1.8"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [cider/cider-nrepl "0.11.0-SNAPSHOT"]
+                 [seesaw "1.5.0"]
                  [org.clojure/java.jdbc "0.7.5"]
                  [java-jdbc/dsl "0.1.3" ]
                  [org.xerial/sqlite-jdbc "3.7.2"]

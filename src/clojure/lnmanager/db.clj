@@ -5,7 +5,8 @@
             [clojure.data.csv :as csv]
             [clojure.java.io :as io])
            
-  (:import java.sql.DriverManager))
+  (:import java.sql.DriverManager)
+  (:gen-class))
 
 
 (def pg-db  {:dbtype "postgresql"
@@ -17,10 +18,11 @@
             :ssl false
             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
-(load "/clojure/lnmanager/data-sets")
-(load "/clojure/lnmanager/db-functions")
-(load "/clojure/lnmanager/example-data")
-(load "/clojure/lnmanager/session")
+(load "/lnmanager/data-sets")
+(load "/lnmanager/db-functions")
+(load "/lnmanager/example-data")
+(load "/lnmanager/plate-layout-data")
+
 
 
 
@@ -387,14 +389,20 @@
      [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
    
    [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
-   ln.data-sets/well-numbers
+   lnmanager.data-sets/well-numbers
     ]
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
-   ln.data-sets/plate-layout-data
+   lnmanager.plate-layout-data/plate-layout-data
     ]
 
    ])
+
+(defn drop-all-tables
+;;
+[]
+  (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
+
 
 
 (defn initialize-limsnucleus
@@ -404,34 +412,30 @@
  
   (doall (map #(jdbc/db-do-commands pg-db true %) all-tables))
   (doall  (map #(jdbc/db-do-commands pg-db true %) all-indices))
-    ;; errors because brackets not stripped
+
+
+    ;; this errors because brackets not stripped
     ;;(map #(jdbc/insert-multi! pg-db %) required-data)
   (doall  (map #(apply jdbc/insert-multi! pg-db % ) required-data))
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.db-functions/drop-all-functions))
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.db-functions/all-functions))
-
-  
-   (println "at 5"))
+  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.db-functions/drop-all-functions))
+  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.db-functions/all-functions)))
  
 
 (defn add-example-data
   ;;
   []
 
-(doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/add-example-data-pre-assay))
+  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/add-example-data-pre-assay))
 
   ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
   (jdbc/insert-multi! pg-db :assay_result [:assay_run_id :plate_order :well :response]
-                                        ln.example-data/assay-data )
+                                        lnmanager.example-data/assay-data )
 
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/add-example-data-post-assay))
+  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/add-example-data-post-assay)))
 
-  
-  )
+(defn delete-example-data
+  []
+  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/delete-example-data)))
 
 
 
-
-(initialize-limsnucleus)
-
-;;(clojure.pprint/pprint (first ln.data-sets/well-numbers))
