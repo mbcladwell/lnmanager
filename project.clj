@@ -42,7 +42,7 @@
 
 
 
-  :main ^:skip-aot lnmanager.core
+  :main ^:skip-aot lnmanager.session
   :aot [ ]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
