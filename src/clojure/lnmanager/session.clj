@@ -9,6 +9,7 @@
   (:gen-class ))
 
 (load "/lnmanager/db")
+(load "/lnmanager/dialog")
 
 
 (defn open-props-if-exists
@@ -23,8 +24,9 @@
       (lnmanager.DialogPropertiesNotFound.))))
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
-;;
-    
+;;(open-props-if-exists)
+
+
 (defn setup-local-postgres-session []
 (c/assoc-at! props [:conn] {:host "127.0.0.1"
 	              :port "5432"
@@ -50,9 +52,9 @@
 (defn create-ln-props
   ;;
   [ host port sslmode user password]
-  (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props"))) ;
+  (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props")))
 
-(c/assoc-at! props [:conn] {:host host
+(c/assoc-at! props [:assets :conn] {:host host
 	              :port port
 	              :sslmode sslmode
 	              :source "local"
@@ -70,46 +72,80 @@
   ;;note that the keys must be quoted for java
   []
   (into {} (java.util.HashMap.
-           {":host" (c/get-at! props [:conn :host])
-            ":port" (c/get-at! props [:conn :port])
-           ":sslmode" (c/get-at! props [:conn :sslmode])
-          ":source" (c/get-at! props [:conn :source])
-          ":dbname" (c/get-at! props [:conn :dbname])
-          ":help-url-prefix" (c/get-at! props [:conn :help-url-prefix])
-          ":password" (c/get-at! props [:conn :password])
-          ":user" (c/get-at! props [:conn :user])})))
+           {":host" (c/get-at! props [:assets :conn :host])
+            ":port" (c/get-at! props [:assets :conn :port])
+           ":sslmode" (c/get-at! props [:assets :conn :sslmode])
+          ":source" (c/get-at! props [:assets :conn :source])
+          ":dbname" (c/get-at! props [:assets :conn :dbname])
+          ":help-url-prefix" (c/get-at! props [:assets :conn :help-url-prefix])
+          ":password" (c/get-at! props [:assets :conn :password])
+          ":user" (c/get-at! props [:assets :conn :user])})))
 
 (defn get-all-props-clj
   ;;a map for clojure
   [] 
-  ({:host (c/get-at! props [:conn :host])
-    :port (c/get-at! props [:conn :port])
-    :sslmode (c/get-at! props [:conn :sslmode])
-    :source (c/get-at! props [:conn :source])
-    :dbname (c/get-at! props [:conn :dbname])
-    :help-url-prefix (c/get-at! props [:conn :help-url-prefix])
-    :password (c/get-at! props [:conn :password])
-    :user (c/get-at! props [:conn :user])}))
+  ({:host (c/get-at! props [:assets :conn :host])
+    :port (c/get-at! props [:assets :conn :port])
+    :sslmode (c/get-at! props [:assets :conn :sslmode])
+    :source (c/get-at! props [:assets :conn :source])
+    :dbname (c/get-at! props [:assets :conn :dbname])
+    :help-url-prefix (c/get-at! props [:assets :conn :help-url-prefix])
+    :password (c/get-at! props [:assets :conn :password])
+    :user (c/get-at! props [:assets :conn :user])}))
 
 
+(defn print-all-props []
+  (do
+    (println "All ln-props")
+    (println "------------")
+    (println (str "Host: " (c/get-at! props [:assets :conn :host]) ))
+    (println (str "Port: " (c/get-at! props [:assets :conn :port]) ))
+    (println (str "ssl-mode: " (c/get-at! props [:assets :conn :sslmode]) ))
+    (println (str "Source: " (c/get-at! props [:assets :conn :source]) ))
+    (println (str "dbname: " (c/get-at! props [:assets :conn :dbname]) ))
+    (println (str "help-url-prefix: " (c/get-at! props [:assets :conn :help-url-prefix]) ))
+    (println (str "password: " (c/get-at! props [:assets :conn :password]) ))
+    (println (str "user: " (c/get-at! props [:assets :conn :user]) ))))
+
+(defn  get-connection-url [target]	  
+  (case target
+  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
+	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname));	   
+	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
+
+(get-connection-url (get-source)) 
 
 (defn get-host []
-   (c/get-at! props [:conn :host]))
+   (c/get-at! props [:assets :conn :host]))
 
 (defn get-port []
-  (:port (c/get-at! props [:conn :port])))
+  (c/get-at! props [:assets :conn :port]))
 
 (defn get-source []
-  (:source (c/get-at! props [:conn :source])))
+  (c/get-at! props [:assets :conn :source]))
+
+(defn get-dbname []
+  (c/get-at! props [:assets :conn :dbname]))
+
+(defn get-user []
+  (c/get-at! props [:assets :conn :user]))
+
+(defn get-password []
+  (c/get-at! props [:assets :conn :password]))
 
 
+(defn set-user [u]
+        (c/assoc-at! props  [:assets :conn :user] u))
+
+
+(defn set-password [p]
+        (c/assoc-at! props  [:assets :conn :password] p))
+
+
+;;(set-user "dopey")
+;;(print-all-props)
 ;;(c/close-database! props)
 
-(defn write-out-message [ int ]
-  (* int 3)
-  )
-
-;;(write-out-message "my message")
 
 (defn load-props
   [file-name]
@@ -145,4 +181,78 @@
 
 	;;	(post-load-properties "elephantsql"))
 
-(lnmanager.DialogPropertiesNotFound.)
+
+
+(defn set-user-id [i]
+        (c/assoc-at! props  [:assets :session :user-id i]))
+
+
+(defn get-user-id []
+  (c/get-at! props [:assets :session :user-id ]))
+
+
+(defn set-user-group [s]
+        (c/assoc-at! props  [:assets :session :user-group s]))
+
+(defn get-user-group []
+  (c/get-at! props [:assets :session :user-group ]))
+
+
+(defn get-user-group-id []
+  (c/get-at! props [:assets :session :user-group-id ]))
+
+(defn set-user-group-id [i]
+        (c/assoc-at! props  [:assets :session :user-group-id i]))
+
+(defn set-project-id [i]
+        (c/assoc-at! props  [:assets :session :project-id i]))
+
+(defn get-project-id []
+  (c/get-at! props [:assets :session :project-id ]))
+
+(defn set-project-sys-name [s]
+        (c/assoc-at! props  [:assets :session :project-sys-name s]))
+
+(defn get-project-sys-name []
+  (c/get-at! props [:assets :session :project-sys-name ]))
+
+(defn set-plate-set-sys-name [s]
+        (c/assoc-at! props  [:assets :session :plate-set-sys-name s]))
+
+(defn get-plate-set-sys-name []
+  (c/get-at! props [:assets :session :plate-set-sys-name ]))
+
+(defn set-plate-set-id [i]
+        (c/assoc-at! props  [:assets :session :plate-set-id i]))
+
+(defn get-plate-set-id []
+  (c/get-at! props [:assets :session :plate-set-id ]))
+
+
+(defn get-session-id []
+  (c/get-at! props [:assets :session :session-id ]))
+
+(defn set-session-id [i]
+        (c/assoc-at! props  [:assets :session :session-id i]))
+  
+(defn get-home-dir []
+   (java.lang.System/getProperty "user.home"))
+  
+(defn get-temp-dir []
+   (java.lang.System/getProperty "java.io.tmpdir"))
+             
+  
+(defn get-working-dir []
+   (java.lang.System/getProperty "user.dir"))
+
+
+(defn get-help-url-prefix []
+  (c/get-at! props [:assets :props :help-url-prefix ]))
+
+
+
+  (defn set-authenticated [b]
+        (c/assoc-at! props  [:assets :session :authenticated b]))
+
+(defn get-authenticated []
+  (c/get-at! props [:assets :session :authenticated ]))
