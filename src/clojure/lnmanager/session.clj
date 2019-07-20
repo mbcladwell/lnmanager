@@ -44,15 +44,20 @@
 
 (defn set-uid-ug-auth [ uid ug auth ]
   (c/with-write-transaction [props tx]
-    (c/merge-at tx [:assets] {:session {:user-id uid :user-group ug :authenticated auth}})))
+    (c/merge-at tx [:assets :session] { uid {:user-id uid :user-group ug :authenticated auth}})))
 
-  (c/with-write-transaction [props tx]
-    (c/update-at tx [:assets :session :authenticated false :user-group "loser" :user-id ]  3436 ))
-
-;;(set-uid-ug-auth 222 "loser" false)
-
+(comment
+(c/with-write-transaction [props tx]
+  (when (c/get-at tx [:user-id 3436] )
+	  (throw (Exception. "user id already exists")))
+  (when-let [user-id (c/get-at! props [:assets :session :user-id])]
+    (-> tx
+       ;; (c/dissoc-at [:assets :session 222 :user-id ] )
+	(c/assoc-at! props [:assets :session  :user-id ] 6666 ))))
+)
   ;;(print-ap)
 
+;; (println (c/get-at! props  [:assets :session 225 :user-group] ))
 
 (defn set-ln-props [ path-to-db ]
     (def props (c/open-database! path-to-db))  )
@@ -61,15 +66,31 @@
   [ host port dbname source sslmode user password]
   (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props")))
   (c/with-write-transaction [props tx]
-  (c/assoc-at tx [:assets :conn] {:host host
-	                              :port port
-	                              :sslmode sslmode	              
-                                      :dbname dbname
-                                      :source source
-                                      :password password
-	                              :user user	  })))
+    (-> tx
+  (c/assoc-at [:assets :conn] {:host host
+	                          :port port
+	                          :sslmode sslmode	              
+                                  :dbname dbname
+                                  :source source
+                                  :password password
+	                          :user user
+                                  :authenticated false
+	                          :help-url-prefix "www.labsolns.com/software"})
+  (c/assoc-at [:assets :session] {:project-id 0
+	                          :project-sys-name ""
+	                          :user-id 0	              
+                                  :user-sys-name ""
+                                  :plateset-id 0
+                                  :plateset-sys-name ""
+	                             :user-group-id 0
+	                             :session-id 0
+                                     :working-dir ""
+                                     })
+    )))
 
 
+(defn read-props-text-file
+  (read-string (slurp "/home/mbc/projects/ln/limsnucleus.properties")))
 ;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome")
 
 (defn  get-connection-string [target]	  
@@ -143,20 +164,6 @@
     :password (c/get-at! props [:assets :conn :password])
     :user (c/get-at! props [:assets :conn :user])}))
 
-
-
-(defn print-all-props []
-  (do
-    (println ":conn in ln-props")
-    (println "------------")
-    (println (str "Host: " (c/get-at! props [:assets :conn :host]) ))
-    (println (str "Port: " (c/get-at! props [:assets :conn :port]) ))
-    (println (str "ssl-mode: " (c/get-at! props [:assets :conn :sslmode]) ))
-    (println (str "Source: " (c/get-at! props [:assets :conn :source]) ))
-    (println (str "dbname: " (c/get-at! props [:assets :conn :dbname]) ))
-    (println (str "help-url-prefix: " (c/get-at! props [:assets :conn :help-url-prefix]) ))
-    (println (str "password: " (c/get-at! props [:assets :conn :password]) ))
-    (println (str "user: " (c/get-at! props [:assets :conn :user]) ))))
 
 
   (defn print-ap 

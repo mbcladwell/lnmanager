@@ -95,8 +95,8 @@ ImageIcon icon = null;
  */
 
     JPanel panel1 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Evaluate with E-SQL", icon, panel1,
-                  "Use ElephantSQL example data");
+tabbedPane.addTab("Directory Selection", icon, panel1,
+                  "");
 tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 JPanel panel2 = new JPanel(new GridBagLayout());
@@ -116,13 +116,13 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     // Image img = new
     // ImageIcon(DialogAddProject.class.getResource("../resources/mwplate.png")).getImage();
     // this.setIconImage(img);
-    this.setTitle("Administrator Activities");
+    this.setTitle("LAS Properties Tool");
     // c.gridwidth = 2;
 
   try {
       ImageIcon logo =
           new ImageIcon( 
-			this.getClass().getResource("images/las.png"));
+			this.getClass().getResource("../resources/images/las.png"));
       JLabel logolabel = new JLabel(logo, JLabel.CENTER);
       c.gridx=0;
       c.gridwidth=3;
@@ -137,19 +137,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
  
 
     
-    elephantsql =  new JButton( "Connect to ElephantSQL");
-    elephantsql.setMnemonic(KeyEvent.VK_E);    
-    elephantsql.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 1;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    c.insets = new Insets(5, 5, 2, 2);
-    elephantsql.addActionListener(this);
-    panel1.add(elephantsql, c);
-
-    label = new JLabel("for evaluation purposes only - no personal data.");
+    label = new JLabel("Select a directory for ln-props");
     c.gridx = 1;
     c.gridy = 1;
     c.gridwidth = 3;
@@ -158,13 +146,26 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
   panel1.add(label, c);
  
 
-  label = new JLabel("ElephantSQL example data set refreshed daily at midnight.");
+  label = new JLabel("User must have read write access.");
     c.gridx = 0;
     c.gridy = 2;
     c.gridwidth = 2;
     c.gridheight = 1;
     panel1.add(label, c);
 
+trueButton   = new JRadioButton("True");
+    falseButton    = new JRadioButton("False", true);
+  
+    ButtonGroup filebgroup = new ButtonGroup();
+    filebgroup.add(trueButton);
+    filebgroup.add(falseButton);
+    c.gridx = 4;
+    c.gridy = 5;
+    panel2.add(trueButton, c);
+    c.gridx = 5;
+    panel2.add(falseButton, c);
+
+    
     JButton helpButton = new JButton("Help");
     helpButton.setMnemonic(KeyEvent.VK_H);
     helpButton.setActionCommand("help");
@@ -222,7 +223,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     select.setEnabled(true);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
-    c.gridy = 0;
+     c.gridy = 0;
     c.gridwidth = 1;
     c.gridheight = 1;
     select.addActionListener(this);
