@@ -41,6 +41,7 @@ import clojure.lang.IFn;
 public class DialogPropertiesNotFound extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
   static JButton button;
+  static JButton selectDirButton;
   static JLabel label;
   static JLabel nLabel;
     
@@ -59,6 +60,8 @@ public class DialogPropertiesNotFound extends JDialog
     static JButton createLnProps;  
     static JRadioButton trueButton;
     static JRadioButton falseButton;
+    static JRadioButton workingButton;
+    static JRadioButton userButton;
     static JLabel selectedLabel;
     static JLabel selectedLabelResponse;
     
@@ -71,10 +74,11 @@ public class DialogPropertiesNotFound extends JDialog
     static String sourceDescription; //for ln-props: local, elephantsql etc. a clue for populating other variables
   static JButton select;
   static JButton cancelButton;
+  static JButton cancelButton2;
   private static final long serialVersionUID = 1L;
     // private Session session;
   private JFileChooser fileChooser;
-    
+    private     JTabbedPane tabbedPane;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public DialogPropertiesNotFound( ) {
@@ -86,7 +90,7 @@ public class DialogPropertiesNotFound extends JDialog
 
     fileChooser = new JFileChooser();
 
-    JTabbedPane tabbedPane = new JTabbedPane();
+     tabbedPane = new JTabbedPane();
 ImageIcon icon = null;
 
 /**
@@ -100,7 +104,7 @@ tabbedPane.addTab("Directory Selection", icon, panel1,
 tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 JPanel panel2 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Find/Create ln-props", icon, panel2,
+tabbedPane.addTab("View/Create ln-props", icon, panel2,
                   "Configure Database Connection");
 tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
@@ -135,11 +139,42 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     
     }
  
+        select =
+        new JButton(
+            "Find ln-props...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
+    select.setMnemonic(KeyEvent.VK_O);
+    select.setActionCommand("select");
+    select.setEnabled(true);
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 1;
+     c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    select.addActionListener(this);
+    panel1.add(select, c);
+
+  label = new JLabel("Find an existing directory.");
+    c.gridx = 2;
+    c.gridy = 0;
+    c.gridwidth = 3;
+    c.gridheight = 1;
+    panel1.add(label, c);
+
+  label = new JLabel("OR");
+    c.gridx = 1;
+    c.gridy = 2;
+    c.gridwidth = 3;
+    c.gridheight = 1;
+    panel1.add(label, c);
+
+
 
     
-    label = new JLabel("Select a directory for ln-props");
+    label = new JLabel("Select a directory into which ln-props will be created");
     c.gridx = 1;
-    c.gridy = 1;
+    c.gridy = 4;
+    	c.anchor = GridBagConstraints.LINE_START;
+
     c.gridwidth = 3;
     c.gridheight = 1;
     c.insets = new Insets(5, 5, 2, 2);
@@ -147,25 +182,64 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
  
 
   label = new JLabel("User must have read write access.");
-    c.gridx = 0;
-    c.gridy = 2;
-    c.gridwidth = 2;
+    c.gridx = 1;
+    c.gridy = 5;
+    c.gridwidth = 3;
     c.gridheight = 1;
     panel1.add(label, c);
 
-trueButton   = new JRadioButton("True");
-    falseButton    = new JRadioButton("False", true);
+    workingButton   = new JRadioButton("Working: " + System.getProperty("user.dir"), true);
+    userButton    = new JRadioButton("User: " + System.getProperty("user.home"));
   
-    ButtonGroup filebgroup = new ButtonGroup();
-    filebgroup.add(trueButton);
-    filebgroup.add(falseButton);
-    c.gridx = 4;
-    c.gridy = 5;
-    panel2.add(trueButton, c);
-    c.gridx = 5;
-    panel2.add(falseButton, c);
+    ButtonGroup dirgroup = new ButtonGroup();
+    dirgroup.add(workingButton);
+    dirgroup.add(userButton);
+    c.gridx = 1;
+    c.gridy = 6;
+    panel1.add(workingButton, c);
+    c.gridy = 7;
+    panel1.add(userButton, c);
+
 
     
+    selectDirButton = new JButton("Select Directory");
+    selectDirButton.setMnemonic(KeyEvent.VK_S);
+    selectDirButton.setEnabled(true);
+    c.gridwidth = 1;
+    c.gridx = 1;
+    c.gridy = 8;
+    panel1.add(selectDirButton, c);
+    selectDirButton.addActionListener(
+        (new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      String selectedDir = new String();
+	      if (workingButton.isSelected()) {
+                selectedDir = System.getProperty("user.dir");
+	      } else {selectedDir = System.getProperty("home.dir");}
+	      selectedLabelResponse.setText(selectedDir);
+            		tabbedPane.setSelectedIndex(1);	
+
+          }
+        }));
+
+    
+
+    
+    cancelButton = new JButton("Cancel");
+    cancelButton.setMnemonic(KeyEvent.VK_C);
+    cancelButton.setActionCommand("cancel");
+    cancelButton.setEnabled(true);
+    cancelButton.setForeground(Color.RED);
+    c.gridx = 3;
+    c.gridy = 8;
+    panel1.add(cancelButton, c);
+    cancelButton.addActionListener(
+        (new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            dispose();
+          }
+        }));
+
     JButton helpButton = new JButton("Help");
     helpButton.setMnemonic(KeyEvent.VK_H);
     helpButton.setActionCommand("help");
@@ -194,64 +268,12 @@ trueButton   = new JRadioButton("True");
     //             getLocation(), getPreferredSize()));
     //helpButton.setMargin(new Insets(1, -40, 1, -100)); //(top, left, bottom, right)
 
-    
-    cancelButton = new JButton("Cancel");
-    cancelButton.setMnemonic(KeyEvent.VK_C);
-    cancelButton.setActionCommand("cancel");
-    cancelButton.setEnabled(true);
-    cancelButton.setForeground(Color.RED);
-    c.gridx = 2;
-    c.gridy = 8;
-    panel1.add(cancelButton, c);
-    cancelButton.addActionListener(
-        (new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dispose();
-          }
-        }));
-
 /**
  * Panel2 collect properties 
  * 
  */
 
-        select =
-        new JButton(
-            "Find ln-props...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
-    select.setMnemonic(KeyEvent.VK_O);
-    select.setActionCommand("select");
-    select.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 1;
-     c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    select.addActionListener(this);
-    panel2.add(select, c);
 
-    JButton helpButton2 = new JButton("Help");
-    helpButton2.setMnemonic(KeyEvent.VK_H);
-    helpButton2.setActionCommand("help");
-    c.fill = GridBagConstraints.NONE;
-    c.gridx = 5;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(helpButton2, c);
-      try {
-      ImageIcon help =
-          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
-      helpButton2.setIcon(help);
-    } catch (Exception ex) {
-      System.out.println("Can't find help icon: " + ex);
-    }
-    helpButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    helpButton2.setSize(10, 10);
 
 
     selectedLabel = new JLabel("Selected:", SwingConstants.RIGHT);
@@ -395,27 +417,6 @@ trueButton   = new JRadioButton("True");
     c.gridheight = 1;
     panel2.add(label, c);
 
-label = new JLabel("User Directory:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 8;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel("Home Directory:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 9;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel("Temp Directory:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 10;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
     hostField = new JTextField(50);
     c.gridx = 1;
     c.gridy = 4;
@@ -460,27 +461,6 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     c.gridheight = 1;
     panel2.add(passwordField, c);
 
-       label = new JLabel(System.getProperty("user.dir"), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 8;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel(System.getProperty("user.home"), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 9;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel(System.getProperty("java.io.tmpdir"), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 10;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
     createLnProps =
         new JButton(
             "Create ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
@@ -494,24 +474,47 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     createLnProps.addActionListener(this);
     panel2.add(createLnProps, c);
 
-    /*
-  okButton = new JButton("Connect (ln-props database)" );
-    okButton.setMnemonic(KeyEvent.VK_P);
-    okButton.setActionCommand("ok");
-    okButton.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 2;
+ 
+    cancelButton2 = new JButton("Cancel");
+    cancelButton2.setMnemonic(KeyEvent.VK_C);
+    cancelButton2.setActionCommand("cancel");
+    cancelButton2.setEnabled(true);
+    cancelButton2.setForeground(Color.RED);
+    c.gridx = 3;
     c.gridy = 11;
-    c.gridwidth = 3;
-    c.gridheight = 1;
-    panel2.add(okButton, c);
-    okButton.setEnabled(false);
-    okButton.addActionListener(this);
-    */
+    panel2.add(cancelButton2, c);
+    cancelButton2.addActionListener(
+        (new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            dispose();
+          }
+        }));
+
+    JButton helpButton2 = new JButton("Help");
+    helpButton2.setMnemonic(KeyEvent.VK_H);
+    helpButton2.setActionCommand("help");
+    c.fill = GridBagConstraints.NONE;
     c.gridx = 5;
     c.gridy = 11;
-    panel2.add(cancelButton, c);
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel2.add(helpButton2, c);
+      try {
+      ImageIcon help =
+          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
+      helpButton2.setIcon(help);
+    } catch (Exception ex) {
+      System.out.println("Can't find help icon: " + ex);
+    }
+    helpButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    helpButton2.setSize(10, 10);
 
+   
     //panel 3
 
     panel3.add(new DatabaseSetupPanel());
@@ -601,7 +604,9 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 		if(Boolean.valueOf(results.get(":sslmode"))){trueButton.setSelected(true);}else{falseButton.setSelected(true);};
 		userField.setText(results.get(":user"));
 		passwordField.setText(results.get(":password"));
-	
+		tabbedPane.setSelectedIndex(1);
+		createLnProps.setEnabled(false);
+		createLnProps.setText("Viewing ln-props");
       } else {
         LOGGER.info("Open command cancelled by user.\n");
       }

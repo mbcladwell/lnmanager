@@ -89,7 +89,7 @@
     )))
 
 
-(defn read-props-text-file
+(defn read-props-text-file []
   (read-string (slurp "/home/mbc/projects/ln/limsnucleus.properties")))
 ;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome")
 
