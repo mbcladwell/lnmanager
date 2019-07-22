@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -64,6 +65,7 @@ public class DialogPropertiesNotFound extends JDialog
     static JRadioButton userButton;
     static JLabel selectedLabel;
     static JLabel selectedLabelResponse;
+    static JLabel messageLabel;
     
     //panel 3 components
 
@@ -80,9 +82,11 @@ public class DialogPropertiesNotFound extends JDialog
   private JFileChooser fileChooser;
     private     JTabbedPane tabbedPane;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-    public DialogPropertiesNotFound( ) {
-
+    private int startup_tab;
+    
+    public DialogPropertiesNotFound( int _tab) {
+	startup_tab = _tab;
+	
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");
@@ -150,10 +154,11 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
      c.gridy = 0;
     c.gridwidth = 1;
     c.gridheight = 1;
+    c.insets = new Insets(5, 5, 2, 2);
     select.addActionListener(this);
     panel1.add(select, c);
 
-  label = new JLabel("Find an existing directory.");
+  label = new JLabel("Find an existing ln-props directory.");
     c.gridx = 2;
     c.gridy = 0;
     c.gridwidth = 3;
@@ -177,7 +182,6 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     c.gridwidth = 3;
     c.gridheight = 1;
-    c.insets = new Insets(5, 5, 2, 2);
   panel1.add(label, c);
  
 
@@ -214,10 +218,37 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
           public void actionPerformed(ActionEvent e) {
 	      String selectedDir = new String();
 	      if (workingButton.isSelected()) {
-                selectedDir = System.getProperty("user.dir");
-	      } else {selectedDir = System.getProperty("home.dir");}
-	      selectedLabelResponse.setText(selectedDir);
-            		tabbedPane.setSelectedIndex(1);	
+                selectedDir = System.getProperty("user.dir") + "/ln-props";
+	      } else {selectedDir = System.getProperty("home.dir") + "/ln-props";}
+	      File tmpDir = new File(selectedDir);
+	      boolean exists = tmpDir.exists();
+	      if(exists){
+		  IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");	  
+		  Map<String, String> allprops = (HashMap)getAllProps.invoke();
+		  LOGGER.info("allprops.getKey(:host): " + allprops.get(":host"));
+		  hostField.setEnabled(false);
+		  portField.setEnabled(false);
+		  trueButton.setEnabled(false);
+		  falseButton.setEnabled(false);
+		  userField.setEnabled(false);
+		  passwordField.setEnabled(false);
+		  createLnProps.setEnabled(false);
+		      
+	      
+	      }else{
+		  messageLabel.setText("Provide connection parameters below");
+		  hostField.setEnabled(true);
+		  portField.setEnabled(true);
+		  trueButton.setEnabled(true);
+		  falseButton.setEnabled(true);
+		  userField.setEnabled(true);
+		  passwordField.setEnabled(true);
+		  createLnProps.setEnabled(true);
+		  
+	      }
+	      selectedLabelResponse.setText(selectedDir.toString());
+	      
+	      tabbedPane.setSelectedIndex(1);	
 
           }
         }));
@@ -273,10 +304,18 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
  * 
  */
 
+    messageLabel = new JLabel("", SwingConstants.RIGHT);
+    c.gridx = 1;
+    c.gridy = 0;
+    c.gridwidth = 3;
+    c.gridheight = 1;
+	c.anchor = GridBagConstraints.LINE_START;
+    c.insets = new Insets(5, 5, 2, 2);
+    panel2.add(messageLabel, c);
 
 
 
-    selectedLabel = new JLabel("Selected:", SwingConstants.RIGHT);
+    selectedLabel = new JLabel("Selected directory:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 1;
     c.gridwidth = 1;
@@ -519,12 +558,24 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     panel3.add(new DatabaseSetupPanel());
 
-    
+        
+    if(startup_tab == 2){
+	messageLabel.setText("Viewing contents of existing ln-tab");
+	hostField.setEnabled(false);
+	portField.setEnabled(false);
+	trueButton.setEnabled(false);
+	falseButton.setEnabled(false);
+	userField.setEnabled(false);
+	passwordField.setEnabled(false);
+	createLnProps.setEnabled(false);
+    }
+
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     this.pack();
     this.setLocation(
         (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
         (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - getHeight() / 2);
+    tabbedPane.setSelectedIndex(startup_tab);
     this.setVisible(true);
   }
 
@@ -563,7 +614,9 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 				    sourceDescription,
 				      Boolean.toString(trueButton.isSelected()),
 				      userField.getText(),
-				      passwordField.getText() );
+				    passwordField.getText(),
+				    "www.labsolns.com/software",
+				    System.getProperty("user.dir").toString() + "/ln-props");
 	JOptionPane.showMessageDialog(this,
 				      new String(System.getProperty("user.dir").toString() + "/ln-props created."));
 	

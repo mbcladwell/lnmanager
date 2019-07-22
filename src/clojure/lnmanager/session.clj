@@ -63,8 +63,8 @@
     (def props (c/open-database! path-to-db))  )
 
 (defn create-ln-props
-  [ host port dbname source sslmode user password]
-  (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props")))
+  [ host port dbname source sslmode user password url target-dir]
+  (def props (c/open-database! target-dir))
   (c/with-write-transaction [props tx]
     (-> tx
   (c/assoc-at [:assets :conn] {:host host
@@ -75,7 +75,8 @@
                                   :password password
 	                          :user user
                                   :authenticated false
-	                          :help-url-prefix "www.labsolns.com/software"})
+	                       :help-url-prefix "www.labsolns.com/software"
+                               })
   (c/assoc-at [:assets :session] {:project-id 0
 	                          :project-sys-name ""
 	                          :user-id 0	              
@@ -91,7 +92,7 @@
 
 (defn read-props-text-file []
   (read-string (slurp "/home/mbc/projects/ln/limsnucleus.properties")))
-;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome")
+;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome" "www.labsolns.com/software" (str (java.lang.System/getProperty "user.dir") "/ln-props") )
 
 (defn  get-connection-string [target]	  
   (case target
@@ -107,11 +108,12 @@
   ;;2. check home directory      /home/user
   ;;3. launch DialogPropertiesNotFound()
   []
-  (if (.exists (io/as-file "ln-props"))
-    (def props (c/open-database! "ln-props"))  
-    (if (.exists (io/as-file (str (java.lang.System/getProperty "user.home") "/ln-props") ))
-      (def props (c/open-database! (str (java.lang.System/getProperty "user.home") "/ln-props") ))
-      (lnmanager.DialogPropertiesNotFound.))))
+  (if (.exists (io/as-file "ln-props"))   
+    (lnmanager.DialogPropertiesNotFound. 2)) ;;open to 2nd tab
+      
+  (if (.exists (io/as-file (str (java.lang.System/getProperty "user.home") "/ln-props") ))
+    (lnmanager.DialogPropertiesNotFound. 2)
+    (lnmanager.DialogPropertiesNotFound. 1)))  ;;open to first tab
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
@@ -279,9 +281,7 @@
   "I don't do a whole lot ... yet."
   [& args]
   (open-props-if-exists)
-  (println "opened-props")
-;;  (login-to-database)
-  (println "logged in to db"))
+  (println "opened-props"))
 
 ;;(-main)
 
