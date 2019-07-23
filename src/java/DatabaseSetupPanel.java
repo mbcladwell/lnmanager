@@ -35,7 +35,7 @@ public class DatabaseSetupPanel extends JPanel {
     static JButton loadEgDataButton;
     static JButton deleteTablesButton;
     static JButton deleteEgDataButton; 
-
+    static JLabel urlLabel;
 
     public DatabaseSetupPanel() {
 	BorderLayout b = new BorderLayout();
@@ -112,6 +112,17 @@ public class DatabaseSetupPanel extends JPanel {
     panel1.add(label, c);
 
 
+    IFn getSource = Clojure.var("lnmanager.db", "get-source");
+    IFn getConnURL = Clojure.var("lnmanager.db", "get-connection-string");
+
+    String source = (String)getSource.invoke();
+    String conn_url =  (String)getConnURL.invoke(source);
+    urlLabel = new JLabel("Connection URL: " + conn_url);
+ c.gridx = 0;
+    c.gridy = 2;
+    c.gridwidth = 3;
+    c.gridheight = 1;
+    panel1.add(label, c);
         ////////////////////////////////////////////////
     ////////////////////////////////////////////////
     //Panel 2

@@ -95,8 +95,8 @@
 
 
 
-(defn  get-connection-string [target]	  
-  (case target
+(defn  get-connection-string []	  
+  (case (get-source)
   	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
 	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
 	  "internal" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
@@ -183,4 +183,4 @@
 ;;(-main)
 
 ;;(c/close-database! props)
-
+;; (get-connection-string(get-source))

@@ -9,14 +9,16 @@
   (:gen-class))
 
 
-(def pg-db  {:dbtype "postgresql"
-            :dbname "lndb"
-            :host "127.0.0.1"
-            :user "ln_admin"
-             :password "welcome"
-             :port "5432"
-            :ssl false
-            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+;;(def pg-db  {:dbtype "postgresql"
+  ;;          :dbname "lndb"
+    ;;        :host "127.0.0.1"
+      ;;      :user "ln_admin"
+        ;;     :password "welcome"
+          ;;   :port "5432"
+    ;;        :ssl false
+      ;;      :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+
+(def pg-db lnmanager.session/props)
 
 (load "/lnmanager/data-sets")
 (load "/lnmanager/db-functions")
