@@ -10,7 +10,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -58,7 +57,7 @@ public class DialogPropertiesNotFound extends JDialog
     static JTextField portField;
     static JComboBox<ComboItem> vendorBox;
     static JComboBox<ComboItem> sourceBox;
-    static JButton createLnProps;  
+    static JButton updateLnProps;  
     static JRadioButton trueButton;
     static JRadioButton falseButton;
     static JRadioButton workingButton;
@@ -83,14 +82,16 @@ public class DialogPropertiesNotFound extends JDialog
     private     JTabbedPane tabbedPane;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private int startup_tab;
+    private Map<String, String> allprops;
     
-    public DialogPropertiesNotFound( int _tab) {
-	startup_tab = _tab;
-	
+    public DialogPropertiesNotFound( Map _m ) {
+	allprops = _m;
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");
 	require.invoke(Clojure.read("lnmanager.session"));
+	//IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");	  
+	//Map<String, String> allprops = (HashMap)getAllProps.invoke();
 
     fileChooser = new JFileChooser();
 
@@ -102,20 +103,22 @@ ImageIcon icon = null;
  * OR connection to ElephantSQL
  */
 
+/*
     JPanel panel1 = new JPanel(new GridBagLayout());
 tabbedPane.addTab("Directory Selection", icon, panel1,
                   "");
 tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+*/
 
 JPanel panel2 = new JPanel(new GridBagLayout());
 tabbedPane.addTab("View/Create ln-props", icon, panel2,
                   "Configure Database Connection");
-tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+//tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
 JPanel panel3 = new JPanel(new GridBagLayout());
 tabbedPane.addTab("Database setup", icon, panel3,
                   "Create table, functions, etc.");
-tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+//tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -126,7 +129,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     // this.setIconImage(img);
     this.setTitle("LAS Properties Tool");
     // c.gridwidth = 2;
-
+    /*
   try {
       ImageIcon logo =
           new ImageIcon( 
@@ -142,7 +145,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
       LOGGER.severe((new java.io.File(DialogPropertiesNotFound.class.getProtectionDomain().getCodeSource().getLocation().getPath())).toString());
     
     }
- 
+   
         select =
         new JButton(
             "Find ln-props...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
@@ -232,7 +235,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		  falseButton.setEnabled(false);
 		  userField.setEnabled(false);
 		  passwordField.setEnabled(false);
-		  createLnProps.setEnabled(false);
+		  updateLnProps.setEnabled(false);
 		      
 	      
 	      }else{
@@ -243,7 +246,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		  falseButton.setEnabled(true);
 		  userField.setEnabled(true);
 		  passwordField.setEnabled(true);
-		  createLnProps.setEnabled(true);
+		  updateLnProps.setEnabled(true);
 		  
 	      }
 	      selectedLabelResponse.setText(selectedDir.toString());
@@ -298,7 +301,9 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     // helpButton.setBounds(new Rectangle(
     //             getLocation(), getPreferredSize()));
     //helpButton.setMargin(new Insets(1, -40, 1, -100)); //(top, left, bottom, right)
+    */
 
+  
 /**
  * Panel2 collect properties 
  * 
@@ -315,7 +320,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
 
 
-    selectedLabel = new JLabel("Selected directory:", SwingConstants.RIGHT);
+    selectedLabel = new JLabel("Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 1;
     c.gridwidth = 1;
@@ -365,7 +370,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
         }
     });
 
-	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(3,"ElephantSQL (Cloud)"), new ComboItem(4,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
+	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(5,"Test (Cloud)"), new ComboItem(4,"ElephantSQL (Cloud)"), new ComboItem(3,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
     
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	vendorBox.setSelectedIndex(0);
@@ -379,6 +384,12 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		public void actionPerformed(ActionEvent evt) {
 		    //   LOGGER.info("Algorithm event fired");
 	    switch(((ComboItem)sourceBox.getSelectedItem()).getKey()){
+	    case 5:
+		hostField.setText("");
+		sourceDescription = "test";
+		//updateAllVariables();
+		break;
+		
 	    case 4:
 		hostField.setText("");
 		sourceDescription = "heroku";
@@ -464,7 +475,6 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     panel2.add(hostField, c);
 
     portField = new JTextField(5);
-    portField.setText("5432");	    
     c.gridx = 1;
     c.gridy = 5;
     c.gridwidth = 1;
@@ -472,7 +482,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     panel2.add(portField, c);
 
     trueButton   = new JRadioButton("True");
-    falseButton    = new JRadioButton("False", true);
+    falseButton    = new JRadioButton("False");
   
     ButtonGroup bgroup = new ButtonGroup();
     bgroup.add(trueButton);
@@ -485,7 +495,6 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     
     userField = new JTextField(50);
-    userField.setText("ln_admin");
     c.gridx = 1;
     c.gridy = 6;
     c.gridwidth = 5;
@@ -493,25 +502,22 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     panel2.add(userField, c);
 
     passwordField = new JTextField(50);
-    passwordField.setText("welcome");
     c.gridx = 1;
     c.gridy = 7;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(passwordField, c);
 
-    createLnProps =
+    updateLnProps =
         new JButton(
-            "Create ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
-    select.setMnemonic(KeyEvent.VK_C);
-    select.setEnabled(true);
+            "Update ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
     c.gridy = 11;
     c.gridwidth = 1;
     c.gridheight = 1;
-    createLnProps.addActionListener(this);
-    panel2.add(createLnProps, c);
+    updateLnProps.addActionListener(this);
+    panel2.add(updateLnProps, c);
 
  
     cancelButton2 = new JButton("Cancel");
@@ -545,7 +551,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     } catch (Exception ex) {
       System.out.println("Can't find help icon: " + ex);
     }
-    helpButton.addActionListener(
+    helpButton2.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
@@ -558,18 +564,41 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     panel3.add(new DatabaseSetupPanel());
 
-        
-    if(startup_tab == 2){
-	messageLabel.setText("Viewing contents of existing ln-tab");
+       
+ 
+	messageLabel.setText("Viewing contents of existing ln-props");
+	hostField.setText(allprops.get(":host"));
+	portField.setText(allprops.get(":port"));
+	userField.setText(allprops.get(":user"));
+	passwordField.setText(allprops.get(":password"));
+	selectedLabelResponse.setText(System.getProperty("user.dir") + "/ln-props");
+	if(allprops.get(":sslmode").equals("true")){
+	    trueButton.setSelected(true);
+	}else{falseButton.setSelected(true);
+	}
+	switch (allprops.get(":source")){
+	case "internal":  sourceBox.setSelectedIndex(3);
+	    break;
+	case "local":  sourceBox.setSelectedIndex(4);
+	    break;
+	case "heroku":  sourceBox.setSelectedIndex(2);
+	    break;
+	case "elephantsql":  sourceBox.setSelectedIndex(1);
+	    break;
+	case "test":  sourceBox.setSelectedIndex(0);
+	    break;
+	}
+	    
+	/*
 	hostField.setEnabled(false);
 	portField.setEnabled(false);
 	trueButton.setEnabled(false);
 	falseButton.setEnabled(false);
 	userField.setEnabled(false);
 	passwordField.setEnabled(false);
-	createLnProps.setEnabled(false);
-    }
-
+	updateLnProps.setEnabled(false);
+	*/
+    
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     this.pack();
     this.setLocation(
@@ -605,10 +634,10 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
       this.dispose();
   }
     
-    if (e.getSource() == createLnProps) {
+    if (e.getSource() == updateLnProps) {
 	
-	IFn createLnPropsMethod  = Clojure.var("lnmanager.session", "create-ln-props");	  
-	createLnPropsMethod.invoke( hostField.getText(),
+	IFn updateLnPropsMethod  = Clojure.var("lnmanager.session", "create-ln-props");	  
+	updateLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
 				    "lndb",
 				    sourceDescription,
@@ -622,7 +651,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	
 	
 	select.setEnabled(false);
-	createLnProps.setEnabled(false);
+	updateLnProps.setEnabled(false);
 	//okButton.setEnabled(true);
 	selectedLabel.setText("Created:");
 	selectedLabel.setForeground(Color.GREEN);
@@ -658,8 +687,8 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		userField.setText(results.get(":user"));
 		passwordField.setText(results.get(":password"));
 		tabbedPane.setSelectedIndex(1);
-		createLnProps.setEnabled(false);
-		createLnProps.setText("Viewing ln-props");
+		updateLnProps.setEnabled(false);
+		updateLnProps.setText("Updated");
       } else {
         LOGGER.info("Open command cancelled by user.\n");
       }
