@@ -72,6 +72,15 @@ public class DatabaseSetupPanel extends JPanel {
     c.gridheight = 1;
     panel1.add(warningLabel, c);
 
+    JLabel  label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 0;
+    c.anchor = GridBagConstraints.WEST;
+    c.gridwidth = 2;
+    c.gridheight = 1;
+    panel1.add(label, c);
+
+    
     JButton helpButton = new JButton("Help");
     helpButton.setMnemonic(KeyEvent.VK_H);
     helpButton.setActionCommand("help");
@@ -79,7 +88,7 @@ public class DatabaseSetupPanel extends JPanel {
     c.anchor = GridBagConstraints.WEST;
     c.gridx = 0;
     c.gridy = 1;
-    c.gridwidth = 2;
+    c.gridwidth = 1;
     c.gridheight = 1;
     panel1.add(helpButton, c);
       try {
@@ -97,32 +106,21 @@ public class DatabaseSetupPanel extends JPanel {
         });
     //helpButton.setSize(10, 10);
 
-    JLabel  label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel1.add(label, c);
 
     label = new JLabel("Read the help before proceeding.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
-    c.gridwidth = 1;
+    c.gridwidth = 2;
     c.gridheight = 1;
     panel1.add(label, c);
 
 
-    IFn getSource = Clojure.var("lnmanager.db", "get-source");
-    IFn getConnURL = Clojure.var("lnmanager.db", "get-connection-string");
-
-    String source = (String)getSource.invoke();
-    String conn_url =  (String)getConnURL.invoke(source);
-    urlLabel = new JLabel("Connection URL: " + conn_url);
- c.gridx = 0;
+    urlLabel = new JLabel("");
+    c.gridx = 0;
     c.gridy = 2;
     c.gridwidth = 3;
     c.gridheight = 1;
-    panel1.add(label, c);
+    panel1.add(urlLabel, c);
         ////////////////////////////////////////////////
     ////////////////////////////////////////////////
     //Panel 2
@@ -245,4 +243,7 @@ public class DatabaseSetupPanel extends JPanel {
 
   }
 
+    public void updateURLLabel (String s){
+	urlLabel.setText("Connection URL: " + s);
+    }
 }

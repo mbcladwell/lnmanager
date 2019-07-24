@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -31,6 +30,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 
 import clojure.java.api.Clojure;
@@ -65,7 +66,7 @@ public class DialogPropertiesNotFound extends JDialog
     static JLabel selectedLabel;
     static JLabel selectedLabelResponse;
     static JLabel messageLabel;
-    
+    static DatabaseSetupPanel dbSetupPanel;
     //panel 3 components
 
 
@@ -92,11 +93,28 @@ public class DialogPropertiesNotFound extends JDialog
 	require.invoke(Clojure.read("lnmanager.session"));
 	//IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");	  
 	//Map<String, String> allprops = (HashMap)getAllProps.invoke();
-
+	//LOGGER.info("allprops: " + allprops);
     fileChooser = new JFileChooser();
 
+    dbSetupPanel = new DatabaseSetupPanel();
+ IFn getSource = Clojure.var("lnmanager.session", "get-source");
+    IFn getConnURL = Clojure.var("lnmanager.session", "get-connection-string");
+    
      tabbedPane = new JTabbedPane();
-ImageIcon icon = null;
+     tabbedPane.addChangeListener(  new ChangeListener() {
+      public void stateChanged(ChangeEvent changeEvent) {
+        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+        int index = sourceTabbedPane.getSelectedIndex();
+        //System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
+ String source = (String)getSource.invoke();
+    String conn_url =  (String)getConnURL.invoke();
+    if(source.equals("test")){conn_url="Test cloud instance with example data.";}
+    dbSetupPanel.updateURLLabel(conn_url);
+	
+      }});
+
+     
+     ImageIcon icon = null;
 
 /**
  * Panel1 allows for ln-props location 
@@ -111,7 +129,7 @@ tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 */
 
 JPanel panel2 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("View/Create ln-props", icon, panel2,
+tabbedPane.addTab("View/Update ln-props", icon, panel2,
                   "Configure Database Connection");
 //tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
@@ -309,6 +327,16 @@ tabbedPane.addTab("Database setup", icon, panel3,
  * 
  */
 
+    label = new JLabel("ln-props status:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    c.anchor = GridBagConstraints.LINE_END;
+    c.insets = new Insets(5, 5, 2, 2);
+    panel2.add(label, c);
+
+
     messageLabel = new JLabel("", SwingConstants.RIGHT);
     c.gridx = 1;
     c.gridy = 0;
@@ -385,24 +413,24 @@ tabbedPane.addTab("Database setup", icon, panel3,
 		    //   LOGGER.info("Algorithm event fired");
 	    switch(((ComboItem)sourceBox.getSelectedItem()).getKey()){
 	    case 5:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "test";
 		//updateAllVariables();
 		break;
 		
 	    case 4:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "heroku";
 		//updateAllVariables();
 		break;
 		
 	    case 3:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "elephantsql";
 		//updateAllVariables();
 		break;
 	    case 2:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "internal";
 		//updateAllVariables();
 		break;
@@ -562,11 +590,14 @@ tabbedPane.addTab("Database setup", icon, panel3,
    
     //panel 3
 
-    panel3.add(new DatabaseSetupPanel());
+    panel3.add(dbSetupPanel);
 
+    	IFn recentlyModified  = Clojure.var("lnmanager.session", "recently-modified?");
        
- 
-	messageLabel.setText("Viewing contents of existing ln-props");
+	if((Boolean)recentlyModified.invoke()){
+	    messageLabel.setText("newly created");
+	}else{
+	    messageLabel.setText("pre-existing");}
 	hostField.setText(allprops.get(":host"));
 	portField.setText(allprops.get(":port"));
 	userField.setText(allprops.get(":user"));
@@ -636,7 +667,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     
     if (e.getSource() == updateLnProps) {
 	
-	IFn updateLnPropsMethod  = Clojure.var("lnmanager.session", "create-ln-props");	  
+	IFn updateLnPropsMethod  = Clojure.var("lnmanager.session", "update-ln-props");	  
 	updateLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
 				    "lndb",
@@ -647,20 +678,12 @@ tabbedPane.addTab("Database setup", icon, panel3,
 				    "www.labsolns.com/software",
 				    System.getProperty("user.dir").toString() + "/ln-props");
 	JOptionPane.showMessageDialog(this,
-				      new String(System.getProperty("user.dir").toString() + "/ln-props created."));
-	
-	
-	select.setEnabled(false);
-	updateLnProps.setEnabled(false);
-	//okButton.setEnabled(true);
-	selectedLabel.setText("Created:");
-	selectedLabel.setForeground(Color.GREEN);
-	String newDirLocation = new String(System.getProperty("user.dir").toString() + "/ln-props");
-	selectedLabelResponse.setText(newDirLocation);
-	
+				      new String(System.getProperty("user.dir").toString() + "/ln-props updated."));	
+	messageLabel.setText("updated");
+
    }
 
-    
+    /*    
     if (e.getSource() == select) { //find the ln-props directory and populate text fields
 	fileChooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
       int returnVal = fileChooser.showOpenDialog(DialogPropertiesNotFound.this);
@@ -693,8 +716,11 @@ tabbedPane.addTab("Database setup", icon, panel3,
         LOGGER.info("Open command cancelled by user.\n");
       }
     }
-  }
+  
 
+    */
+  }
+    
   public void insertUpdate(DocumentEvent e) {
 
   }

@@ -7,7 +7,7 @@
             [clojure.data.csv :as csv]
             [codax.core :as c]
             [clojure.java.io :as io])
-  (:import java.sql.DriverManager javax.swing.JOptionPane)
+  (:import java.sql.DriverManager javax.swing.JOptionPane lnmanager.DialogPropertiesNotFound lnmanager.DatabaseSetupPanel)
   
   (:gen-class ))
 
@@ -148,6 +148,28 @@
   ;;(print-all-props)
   ;;(println props)
 ;;(c/close-database! props)
+
+(defn recently-modified? []
+  (> 5000 (- (System/currentTimeMillis)  (.lastModified (java.io.File. "./ln-props")))))
+
+;;(recently-modified?)
+
+(defn update-ln-props
+  [ host port dbname source sslmode user password url target-dir]
+  (def props (c/open-database! target-dir))
+  (c/with-write-transaction [props tx]
+    (-> tx
+  (c/assoc-at [:assets :conn] {:host host
+	                          :port port
+	                          :sslmode sslmode	              
+                                  :dbname dbname
+                                  :source source
+                                  :password password
+	                          :user user
+                                  :authenticated false
+	                       :help-url-prefix "www.labsolns.com/software"
+                               }) )))
+
 
 
 
