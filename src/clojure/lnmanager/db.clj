@@ -6,19 +6,20 @@
             [clojure.java.io :as io])
            
   (:import java.sql.DriverManager)
+  (:use lnmanager.session)
   (:gen-class))
 
 
-;;(def pg-db  {:dbtype "postgresql"
-  ;;          :dbname "lndb"
-    ;;        :host "127.0.0.1"
-      ;;      :user "ln_admin"
-        ;;     :password "welcome"
-          ;;   :port "5432"
-    ;;        :ssl false
-      ;;      :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+(def pg-db  {:dbtype "postgresql"
+           :dbname "lndb"
+            :host (get-host)
+           :user (get-user)
+             :password (get-password)
+            :port (get-port)
+          :ssl (get-ssl-mode)
+            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
-(def pg-db lnmanager.session/props)
+
 
 (load "/lnmanager/data-sets")
 (load "/lnmanager/db-functions")
@@ -405,7 +406,7 @@
 []
   (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
 
-
+;;(drop-all-tables)
 
 (defn initialize-limsnucleus
   ;;(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)

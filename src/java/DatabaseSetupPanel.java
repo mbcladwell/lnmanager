@@ -46,9 +46,6 @@ public class DatabaseSetupPanel extends JPanel {
 
     //setup desired Clojure methods
     IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("lnmanager.session"));
-    IFn writeMess = Clojure.var("lnmanager.session", "write-out-message");
-
     require.invoke(Clojure.read("lnmanager.db"));
     IFn dropAllTables = Clojure.var("lnmanager.db", "drop-all-tables");
     IFn initLimsNucleus = Clojure.var("lnmanager.db", "initialize-limsnucleus");
@@ -157,7 +154,6 @@ public class DatabaseSetupPanel extends JPanel {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      dropAllTables.invoke();
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
           }
         });
     deleteTablesButton.setSize(10, 10);
@@ -247,3 +243,4 @@ public class DatabaseSetupPanel extends JPanel {
 	urlLabel.setText("Connection URL: " + s);
     }
 }
+

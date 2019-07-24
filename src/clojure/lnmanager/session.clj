@@ -1,5 +1,4 @@
 (ns lnmanager.session
- ;; (:use [] :reload)
 
   (:require [clojure.java.jdbc :as sql]
             [honeysql.core :as hsql]
@@ -7,7 +6,9 @@
             [clojure.data.csv :as csv]
             [codax.core :as c]
             [clojure.java.io :as io])
-  (:import java.sql.DriverManager javax.swing.JOptionPane lnmanager.DialogPropertiesNotFound lnmanager.DatabaseSetupPanel)
+  (:import java.sql.DriverManager javax.swing.JOptionPane)
+  
+  ;;(:import java.sql.DriverManager javax.swing.JOptionPane lnmanager.DialogPropertiesNotFound lnmanager.DatabaseSetupPanel)
   
   (:gen-class ))
 
@@ -93,7 +94,8 @@
 (defn get-password []
   (c/get-at! props [:assets :conn :password]))
 
-
+(defn get-ssl-mode []
+  (c/get-at! props [:assets :conn :sslmode]))
 
 (defn  get-connection-string []	  
   (case (get-source)
