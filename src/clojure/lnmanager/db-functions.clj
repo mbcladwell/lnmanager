@@ -655,10 +655,10 @@ $BODY$
 
 
 (def drop-all-functions
-[drop-new-user drop-new-project drop-new-plate-set drop-new-plate-set-from-group drop-get-num-samples-for-plate-set drop-assoc-plate-ids-with-plate-set-id drop-new-plate drop-new-sample drop-new-assay-run drop-get-ids-for-sys-names drop-get-number-samples-for-psid drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list drop-process-access-ids drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
+[drop-new-user drop-new-project drop-new-plate-set drop-new-plate-set-from-group drop-get-num-samples-for-plate-set drop-assoc-plate-ids-with-plate-set-id drop-new-plate drop-new-sample drop-new-assay-run drop-get-ids-for-sys-names drop-get-number-samples-for-psid drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list  drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [new-user  new-project  new-plate-set new-plate-set-from-group get-num-samples-for-plate-set assoc-plate-ids-with-plate-set-id new-plate new-sample new-assay-run get-ids-for-sys-names get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list process-access-ids rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
+  [new-user  new-project  new-plate-set new-plate-set-from-group get-num-samples-for-plate-set assoc-plate-ids-with-plate-set-id new-plate new-sample new-assay-run get-ids-for-sys-names get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list  rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
 
