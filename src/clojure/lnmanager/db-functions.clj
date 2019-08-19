@@ -2,18 +2,18 @@
    )
 ;;
 
-(def drop-new-user ["DROP FUNCTION IF EXISTS new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER);"])
+;; (def drop-new-user ["DROP FUNCTION IF EXISTS new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER);"])
 
 
-(def new-user ["CREATE OR REPLACE FUNCTION new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER)
-  RETURNS void AS
-$BODY$
-BEGIN
-   INSERT INTO lnuser(usergroup, lnuser_name, tags, password)
-   VALUES (_group, _name, _tags, _password);
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+;; (def new-user ["CREATE OR REPLACE FUNCTION new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER)
+;;   RETURNS void AS
+;; $BODY$
+;; BEGIN
+;;    INSERT INTO lnuser(usergroup, lnuser_name, tags, password)
+;;    VALUES (_group, _name, _tags, _password);
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE;"])
 
 (def drop-new-project ["DROP FUNCTION IF EXISTS new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER);"])
 
@@ -121,35 +121,35 @@ $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
 
-(def drop-assoc-plate-ids-with-plate-set-id ["DROP FUNCTION IF exists assoc_plate_ids_with_plate_set_id( _plate_ids INTEGER[], _plate_set_id INTEGER);"])
+;; (def drop-assoc-plate-ids-with-plate-set-id ["DROP FUNCTION IF exists assoc_plate_ids_with_plate_set_id( _plate_ids INTEGER[], _plate_set_id INTEGER);"])
 
-(def assoc-plate-ids-with-plate-set-id ["CREATE OR REPLACE FUNCTION assoc_plate_ids_with_plate_set_id(_plate_ids int[], _plate_set_id int)
-  RETURNS void AS
-$BODY$
-DECLARE
-   pid int;
-   plate_ids int[];
-   counter INTEGER;
-   sql_statement VARCHAR;
+;; (def assoc-plate-ids-with-plate-set-id ["CREATE OR REPLACE FUNCTION assoc_plate_ids_with_plate_set_id(_plate_ids int[], _plate_set_id int)
+;;   RETURNS void AS
+;; $BODY$
+;; DECLARE
+;;    pid int;
+;;    plate_ids int[];
+;;    counter INTEGER;
+;;    sql_statement VARCHAR;
    
-BEGIN
-counter := 1;
-SELECT sort(_plate_ids) INTO plate_ids;
-sql_statement := 'INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES ';
+;; BEGIN
+;; counter := 1;
+;; SELECT sort(_plate_ids) INTO plate_ids;
+;; sql_statement := 'INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES ';
 
-  FOREACH pid IN ARRAY plate_ids
-     LOOP
-     sql_statement := sql_statement || '(' || _plate_set_id || ', '  ||  pid || ', ' || counter || '),';
-     counter = counter + 1;
-    END LOOP;
+;;   FOREACH pid IN ARRAY plate_ids
+;;      LOOP
+;;      sql_statement := sql_statement || '(' || _plate_set_id || ', '  ||  pid || ', ' || counter || '),';
+;;      counter = counter + 1;
+;;     END LOOP;
 
-     sql_statement := SUBSTRING(sql_statement, 1, CHAR_LENGTH(sql_statement)-1) || ';';
-     --RAISE notice 'sqlstatement: (%)', sql_statement;
-     EXECUTE sql_statement;
+;;      sql_statement := SUBSTRING(sql_statement, 1, CHAR_LENGTH(sql_statement)-1) || ';';
+;;      --RAISE notice 'sqlstatement: (%)', sql_statement;
+;;      EXECUTE sql_statement;
 
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE;"])
 
 (def drop-new-plate ["DROP FUNCTION IF EXISTS new_plate(INTEGER, INTEGER,INTEGER,INTEGER, BOOLEAN);"])
 
