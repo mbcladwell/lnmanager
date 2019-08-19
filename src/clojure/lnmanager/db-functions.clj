@@ -15,21 +15,21 @@
 ;; $BODY$
 ;;   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-project ["DROP FUNCTION IF EXISTS new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER);"])
+;; (def drop-new-project ["DROP FUNCTION IF EXISTS new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER);"])
 
-(def new-project ["CREATE OR REPLACE FUNCTION new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER)
-  RETURNS void AS
-$BODY$
-DECLARE
-   v_id integer;
-BEGIN
-   INSERT INTO project(descr, project_name, lnsession_id)
-   VALUES (_descr, _project_name, _lnsession_id)
-   RETURNING id INTO v_id;
-   UPDATE project SET project_sys_name = 'PRJ-'||v_id WHERE id=v_id;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+;; (def new-project ["CREATE OR REPLACE FUNCTION new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER)
+;;   RETURNS void AS
+;; $BODY$
+;; DECLARE
+;;    v_id integer;
+;; BEGIN
+;;    INSERT INTO project(descr, project_name, lnsession_id)
+;;    VALUES (_descr, _project_name, _lnsession_id)
+;;    RETURNING id INTO v_id;
+;;    UPDATE project SET project_sys_name = 'PRJ-'||v_id WHERE id=v_id;
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE;"])
 
 (def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean);"])
 
@@ -66,29 +66,29 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-plate-set-from-group ["DROP FUNCTION IF exists new_plate_set_from_group(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER);"])
+;; (def drop-new-plate-set-from-group ["DROP FUNCTION IF exists new_plate_set_from_group(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER);"])
 
 
-(def new-plate-set-from-group ["CREATE OR REPLACE FUNCTION new_plate_set_from_group(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER)
-  RETURNS integer AS
-$BODY$
-DECLARE
-   ps_id INTEGER;
+;; (def new-plate-set-from-group ["CREATE OR REPLACE FUNCTION new_plate_set_from_group(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER)
+;;   RETURNS integer AS
+;; $BODY$
+;; DECLARE
+;;    ps_id INTEGER;
     
-BEGIN
+;; BEGIN
    
-   INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)
-   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, lnsession_id )
-   RETURNING id INTO ps_id;
-   UPDATE plate_set SET plate_set_sys_name = 'PS-'||ps_id WHERE id=ps_id;
+;;    INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)
+;;    VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, lnsession_id )
+;;    RETURNING id INTO ps_id;
+;;    UPDATE plate_set SET plate_set_sys_name = 'PS-'||ps_id WHERE id=ps_id;
 
 
-RETURN ps_id;
+;; RETURN ps_id;
 
 
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE;"])
 
 
 (def drop-get-num-samples-for-plate-set ["DROP FUNCTION IF exists get_num_samples_for_plate_set( _plate_set_id INTEGER);"])
