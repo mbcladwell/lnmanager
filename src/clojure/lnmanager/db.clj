@@ -424,10 +424,27 @@
   (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.db-functions/all-functions)))
  
 
+
+
 (defn add-example-data
   ;;
   []
 
+  ;; order important!
+  (jdbc/execute! pg-db "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;")
+  (jdbc/insert! pg-db :lnsession {:lnuser_id 1})
+ (jdbc/insert-multi! pg-db :project [:project_sys_name :descr :project_name :lnsession_id]
+                     [["PRJ-1" "3 plate sets with 2 96 well plates each" "With AR, HL", 1]
+                      ["PRJ-2" "1 plate set with 2 384 well plates each" "With AR" 1]
+                      ["PRJ-3" "1 plate set with 1 1536 well plates" "With AR" 1]
+                      ["PRJ-4" "description 4" "MyTestProj4" 1]
+                      ["PRJ-5" "description 5" "MyTestProj5" 1]
+                      ["PRJ-6" "description 6" "MyTestProj6" 1]
+                      ["PRJ-7" "description 7" "MyTestProj7" 1]
+                      ["PRJ-8" "description 8" "MyTestProj8" 1]
+                      ["PRJ-9" "description 9" "MyTestProj9" 1]
+                      ["PRJ-10" "2 plate sets with 10 96 well plates each" "Plates only, no data" 1]
+                      ] )  
   (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/add-example-data-pre-assay))
 
   ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES

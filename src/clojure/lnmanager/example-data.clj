@@ -2,22 +2,22 @@
 
 ;;must be executed in order
 
-(def delete-example-data ["TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"])
+ (def delete-example-data ["TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"])
 
-(def create-session ["INSERT INTO lnsession (lnuser_id) VALUES (1);"]) 
+;; (def create-session ["INSERT INTO lnsession (lnuser_id) VALUES (1);"]) 
 
-(def add-projects [
-                   "SELECT new_project('3 plate sets with 2 96 well plates each', 'With AR, HL', 1 );"
-                   "SELECT new_project('1 plate set with 2 384 well plates each', 'With AR', 1 );"
-                   "SELECT new_project('1 plate set with 1 1536 well plate', 'With AR', 1 );"
-                   "SELECT new_project('description 4', 'MyTestProj4', 1 );"
-                   "SELECT new_project('description 5', 'MyTestProj5', 1 );"
-                   "SELECT new_project('description 6', 'MyTestProj6', 1 );"
-                   "SELECT new_project('description 7', 'MyTestProj7', 1 );"
-                   "SELECT new_project('description 8', 'MyTestProj8', 1 );"
-                   "SELECT new_project('description 9', 'MyTestProj9', 1 );"
-                   "SELECT new_project('2 plate sets with 10 96 well plates each', 'Plates only, no data', 1 );"
-                   ])
+;; (def add-projects [
+;;                    "SELECT new_project('3 plate sets with 2 96 well plates each', 'With AR, HL', 1 );"
+;;                    "SELECT new_project('1 plate set with 2 384 well plates each', 'With AR', 1 );"
+;;                    "SELECT new_project('1 plate set with 1 1536 well plate', 'With AR', 1 );"
+;;                    "SELECT new_project('description 4', 'MyTestProj4', 1 );"
+;;                    "SELECT new_project('description 5', 'MyTestProj5', 1 );"
+;;                    "SELECT new_project('description 6', 'MyTestProj6', 1 );"
+;;                    "SELECT new_project('description 7', 'MyTestProj7', 1 );"
+;;                    "SELECT new_project('description 8', 'MyTestProj8', 1 );"
+;;                    "SELECT new_project('description 9', 'MyTestProj9', 1 );"
+;;                    "SELECT new_project('2 plate sets with 10 96 well plates each', 'Plates only, no data', 1 );"
+;;                    ])
 
 (def add-plate-sets [
             "SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);"
@@ -59,6 +59,7 @@
                     "SELECT new_hit_list('hit list 6', 'descr6', 20, 3, 1, ARRAY[545, 514, 479, 516, 528, 544, 501, 472, 463, 494, 531, 482, 513, 468, 465, 510, 535, 478, 502, 488]);"
                  ])
 
-(def add-example-data-pre-assay [ delete-example-data create-session add-projects add-plate-sets add-assay-runs ])
+;;(def add-example-data-pre-assay [ delete-example-data create-session add-projects add-plate-sets add-assay-runs ])
+(def add-example-data-pre-assay [  add-plate-sets add-assay-runs ])
 
 (def add-example-data-post-assay [ process-assay-run-data add-hit-lists ])

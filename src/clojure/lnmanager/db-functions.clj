@@ -91,34 +91,34 @@ $BODY$
 ;;   LANGUAGE plpgsql VOLATILE;"])
 
 
-(def drop-get-num-samples-for-plate-set ["DROP FUNCTION IF exists get_num_samples_for_plate_set( _plate_set_id INTEGER);"])
+;; (def drop-get-num-samples-for-plate-set ["DROP FUNCTION IF exists get_num_samples_for_plate_set( _plate_set_id INTEGER);"])
 
-(def get-num-samples-for-plate-set ["CREATE OR REPLACE FUNCTION get_num_samples_for_plate_set(_plate_set_id INTEGER)
-  RETURNS INTEGER AS
-$BODY$
-DECLARE
-   psid int := _plate_set_id;
+;; (def get-num-samples-for-plate-set ["CREATE OR REPLACE FUNCTION get_num_samples_for_plate_set(_plate_set_id INTEGER)
+;;   RETURNS INTEGER AS
+;; $BODY$
+;; DECLARE
+;;    psid int := _plate_set_id;
    
-   counter INTEGER;
-   sql_statement VARCHAR;
-all_sample_ids INTEGER[];
-num_samples INTEGER;
+;;    counter INTEGER;
+;;    sql_statement VARCHAR;
+;; all_sample_ids INTEGER[];
+;; num_samples INTEGER;
    
-BEGIN
+;; BEGIN
 
-sql_statement := 'SELECT ARRAY(SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ' || psid || ' AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id)';
+;; sql_statement := 'SELECT ARRAY(SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ' || psid || ' AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id)';
 
---    RAISE notice 'sql_statement: (%)', sql_statement;
+;; --    RAISE notice 'sql_statement: (%)', sql_statement;
 
-     EXECUTE sql_statement INTO all_sample_ids;
-     num_samples := array_length(all_sample_ids ,1); 
- -- RAISE notice 'ids: (%)', all_sample_ids;
- -- RAISE notice 'num: (%)', num_samples;
+;;      EXECUTE sql_statement INTO all_sample_ids;
+;;      num_samples := array_length(all_sample_ids ,1); 
+;;  -- RAISE notice 'ids: (%)', all_sample_ids;
+;;  -- RAISE notice 'num: (%)', num_samples;
 
-RETURN num_samples;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+;; RETURN num_samples;
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE;"])
 
 
 ;; (def drop-assoc-plate-ids-with-plate-set-id ["DROP FUNCTION IF exists assoc_plate_ids_with_plate_set_id( _plate_ids INTEGER[], _plate_set_id INTEGER);"])
@@ -240,35 +240,35 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-get-ids-for-sys-names ["DROP FUNCTION IF EXISTS get_ids_for_sys_names( VARCHAR[], VARCHAR(30), VARCHAR(30));"])
+;; (def drop-get-ids-for-sys-names ["DROP FUNCTION IF EXISTS get_ids_for_sys_names( VARCHAR[], VARCHAR(30), VARCHAR(30));"])
 
-(def get-ids-for-sys-names ["CREATE OR REPLACE FUNCTION get_ids_for_sys_names( _sys_names VARCHAR[], _table VARCHAR(30), _sys_name VARCHAR(30))
-  RETURNS integer[] AS
-$BODY$
-DECLARE
-   sn varchar(20);
-   an_int integer;
-   sys_ids INTEGER[];
-   sql_statement VARCHAR;
-   sql_statement2 VARCHAR;
+;; (def get-ids-for-sys-names ["CREATE OR REPLACE FUNCTION get_ids_for_sys_names( _sys_names VARCHAR[], _table VARCHAR(30), _sys_name VARCHAR(30))
+;;   RETURNS integer[] AS
+;; $BODY$
+;; DECLARE
+;;    sn varchar(20);
+;;    an_int integer;
+;;    sys_ids INTEGER[];
+;;    sql_statement VARCHAR;
+;;    sql_statement2 VARCHAR;
    
-   temp INTEGER;
+;;    temp INTEGER;
 
-BEGIN
+;; BEGIN
 
- sql_statement := 'SELECT id FROM ' || _table || ' WHERE ' || _sys_name   || ' = ';
+;;  sql_statement := 'SELECT id FROM ' || _table || ' WHERE ' || _sys_name   || ' = ';
 
-  FOREACH sn IN ARRAY _sys_names
-     LOOP
-     sql_statement2 := sql_statement || quote_literal(sn);
-     EXECUTE sql_statement2 INTO temp;
-     sys_ids := array_append(sys_ids, temp );
-    END LOOP;
+;;   FOREACH sn IN ARRAY _sys_names
+;;      LOOP
+;;      sql_statement2 := sql_statement || quote_literal(sn);
+;;      EXECUTE sql_statement2 INTO temp;
+;;      sys_ids := array_append(sys_ids, temp );
+;;     END LOOP;
 
-RETURN sys_ids;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE; "])
+;; RETURN sys_ids;
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE; "])
 
 (def drop-get-number-samples-for-psid ["DROP FUNCTION IF EXISTS get_number_samples_for_psid( _psid INTEGER );"])
 
@@ -655,10 +655,10 @@ $BODY$
 
 
 (def drop-all-functions
-[drop-new-user drop-new-project drop-new-plate-set drop-new-plate-set-from-group drop-get-num-samples-for-plate-set drop-assoc-plate-ids-with-plate-set-id drop-new-plate drop-new-sample drop-new-assay-run drop-get-ids-for-sys-names drop-get-number-samples-for-psid drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list  drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
+[ drop-new-plate-set  drop-new-plate drop-new-sample drop-new-assay-run  drop-get-number-samples-for-psid drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list  drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [new-user  new-project  new-plate-set new-plate-set-from-group get-num-samples-for-plate-set assoc-plate-ids-with-plate-set-id new-plate new-sample new-assay-run get-ids-for-sys-names get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list  rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
+  [ new-plate-set new-plate new-sample new-assay-run  get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list  rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
 
