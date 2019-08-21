@@ -220,25 +220,25 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-assay-run ["DROP FUNCTION IF EXISTS new_assay_run(  VARCHAR(30), VARCHAR(30), INTEGER,  INTEGER, INTEGER);"])
+;; (def drop-new-assay-run ["DROP FUNCTION IF EXISTS new_assay_run(  VARCHAR(30), VARCHAR(30), INTEGER,  INTEGER, INTEGER);"])
 
-(def new-assay-run [" CREATE OR REPLACE FUNCTION new_assay_run( _assay_run_name VARCHAR(30), _descr VARCHAR(30), _assay_type_id INTEGER, _plate_set_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER )
-  RETURNS integer AS
-$BODY$
-DECLARE
-   v_id integer;
-BEGIN
+;; (def new-assay-run [" CREATE OR REPLACE FUNCTION new_assay_run( _assay_run_name VARCHAR(30), _descr VARCHAR(30), _assay_type_id INTEGER, _plate_set_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER )
+;;   RETURNS integer AS
+;; $BODY$
+;; DECLARE
+;;    v_id integer;
+;; BEGIN
    
-   INSERT INTO assay_run(assay_run_name , descr, assay_type_id, plate_set_id, plate_layout_name_id, lnsession_id)
-   VALUES (_assay_run_name, _descr, _assay_type_id, _plate_set_id, _plate_layout_name_id, _lnsession_id)
-   RETURNING id INTO v_id;
+;;    INSERT INTO assay_run(assay_run_name , descr, assay_type_id, plate_set_id, plate_layout_name_id, lnsession_id)
+;;    VALUES (_assay_run_name, _descr, _assay_type_id, _plate_set_id, _plate_layout_name_id, _lnsession_id)
+;;    RETURNING id INTO v_id;
 
-    UPDATE assay_run SET assay_run_sys_name = 'AR-'||v_id WHERE id=v_id;
+;;     UPDATE assay_run SET assay_run_sys_name = 'AR-'||v_id WHERE id=v_id;
 
-RETURN v_id;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+;; RETURN v_id;
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE;"])
 
 ;; (def drop-get-ids-for-sys-names ["DROP FUNCTION IF EXISTS get_ids_for_sys_names( VARCHAR[], VARCHAR(30), VARCHAR(30));"])
 
@@ -270,28 +270,28 @@ $BODY$
 ;; $BODY$
 ;;   LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE; "])
 
-(def drop-get-number-samples-for-psid ["DROP FUNCTION IF EXISTS get_number_samples_for_psid( _psid INTEGER );"])
+;; (def drop-get-number-samples-for-psid ["DROP FUNCTION IF EXISTS get_number_samples_for_psid( _psid INTEGER );"])
 
-(def get-number-samples-for-psid ["CREATE OR REPLACE FUNCTION get_number_samples_for_psid( _psid INTEGER) 
-  RETURNS integer AS
-$BODY$
-DECLARE
-   num_samples INTEGER;
-   sql_statement VARCHAR;
-  --plate_layout_name_id INTEGER;
+;; (def get-number-samples-for-psid ["CREATE OR REPLACE FUNCTION get_number_samples_for_psid( _psid INTEGER) 
+;;   RETURNS integer AS
+;; $BODY$
+;; DECLARE
+;;    num_samples INTEGER;
+;;    sql_statement VARCHAR;
+;;   --plate_layout_name_id INTEGER;
 
-BEGIN
+;; BEGIN
 
-     --sql_statement := 'SELECT plate_layout_name_id FROM plate_set WHERE id = ' || _psid;
-     --EXECUTE sql_statement INTO plate_layout_name_id;
+;;      --sql_statement := 'SELECT plate_layout_name_id FROM plate_set WHERE id = ' || _psid;
+;;      --EXECUTE sql_statement INTO plate_layout_name_id;
 
-      sql_statement := 'SELECT count(sample_id) FROM well_sample WHERE well_sample.well_id IN (SELECT well.id FROM well WHERE well.plate_id  IN (SELECT plate_id FROM plate_plate_set WHERE plate_plate_set.plate_set_id = ' || _psid || '))'; 
-      EXECUTE sql_statement INTO num_samples;
+;;       sql_statement := 'SELECT count(sample_id) FROM well_sample WHERE well_sample.well_id IN (SELECT well.id FROM well WHERE well.plate_id  IN (SELECT plate_id FROM plate_plate_set WHERE plate_plate_set.plate_set_id = ' || _psid || '))'; 
+;;       EXECUTE sql_statement INTO num_samples;
 
-RETURN num_samples;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE;"])
+;; RETURN num_samples;
+;; END;
+;; $BODY$
+;;   LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE;"])
 
 (def drop-new-plate-layout ["DROP FUNCTION IF EXISTS new_plate_layout(  VARCHAR(30), VARCHAR(30), INTEGER,  VARCHAR[][]);"])
 
@@ -655,10 +655,10 @@ $BODY$
 
 
 (def drop-all-functions
-[ drop-new-plate-set  drop-new-plate drop-new-sample drop-new-assay-run  drop-get-number-samples-for-psid drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list  drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
+[ drop-new-plate-set  drop-new-plate drop-new-sample  drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list  drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [ new-plate-set new-plate new-sample new-assay-run  get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list  rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
+  [ new-plate-set new-plate new-sample  new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list  rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
 
