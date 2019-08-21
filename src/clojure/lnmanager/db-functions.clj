@@ -533,6 +533,7 @@ dest_layout_ids := '{14,15,16,17,18}';
 dest_format := 1536;
 END IF;
 
+
 INSERT INTO plate_layout_name (NAME, descr, plate_format_id, replicates, targets, use_edge, num_controls, unknown_n, control_loc, source_dest) VALUES (source_name, source_description, format, 1, 1, edge, n_controls, n_unknowns, control_location, 'source') RETURNING ID INTO source_id;
 
     UPDATE plate_layout_name SET sys_name = 'LYT-'|| source_id WHERE id=source_id;
